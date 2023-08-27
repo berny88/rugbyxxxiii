@@ -1,2 +1,2 @@
-# rugbyxxxiii
-rugby bet web site
+# rugbyxxxix
+small web bet site in python hosted by alwaysdata
