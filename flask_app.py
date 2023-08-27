@@ -4,10 +4,16 @@ import logging.handlers
 
 from flask import Flask
 print(sys.path)
+from tools.Tools import ToolManager, tools_page
+from users.UserServices import users_page
 
 app = Flask(__name__)
 
 app.secret_key = u'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT#BB'
+
+app.register_blueprint(tools_page, url_prefix="/tools", template_folder='templates')
+app.register_blueprint(users_page, url_prefix="/users", template_folder='templates')
+
 print(sys.path)
 app.logger.warning('Started')
 #ch = logging.StreamHandler(sys.stdout)

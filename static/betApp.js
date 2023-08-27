@@ -13,7 +13,7 @@ betApp.run(function($rootScope, $templateCache) {
 
 // create the controller and inject Angular's $scope
 betApp.controller('indexCtrl', function($scope, $window) {
-    $scope.message = 'RUGBY 2019';
+    $scope.message = 'RUGBY 2023';
     $scope.comment = 'Amazing bet site';
 
     $scope.isConnected = function() {

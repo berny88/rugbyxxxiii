@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, jsonify, redirect, request, session
+import os
 import logging
 from uuid import uuid4
-#import sendgrid
-#from sendgrid.helpers.mail import *
 
 from tools.Tools import ToolManager
-from bson.binary import Binary
 from flask import send_file
 import hashlib
+import sqlite3
 
 import io
 
@@ -21,20 +20,52 @@ u"""
 ui layer
 """
 
+uploads_dir = os.path.join("../dist", 'dbimg')
+
 users_page = Blueprint('users_page', __name__,
                        template_folder='templates', static_folder='static')
+
+@users_page.route('/apiv1.0/admin/initDB', methods=['GET'])
+def getInitDB():
+    tmgr = ToolManager()
+    tmgr.createDb()
+    return jsonify({'DBcreated': "yes"})
 
 
 @users_page.route('/apiv1.0/users', methods=['GET'])
 def getusers():
     u"""
     return the complete list of users sorted by nickName and eventually filtered by 'validated'
+    without transfered the uuid + email
     :return: collection of users in jso format
     """
     filterValidated=request.args.get('validated')
     mgr = UserManager()
     users = mgr.getAllUsers(filterValidated)
+    for u in users:
+        u["email"]=""
+        u["uuid"]=""
+
     logger.info("getusers::users={}".format(users))
+    return jsonify({'users': users})
+
+@users_page.route('/apiv1.0/users/admin', methods=['GET'])
+def getUsersForAdmin():
+    u"""
+    return the complete list of users sorted by nickName and eventually filtered by 'validated'
+    without transfered the uuid + email
+    :return: collection of users in jso format
+    """
+    filterValidated=request.args.get('validated')
+    cookieUserKey = session['cookieUserKey']
+    user_mgr = UserManager()
+    user = user_mgr.getUserByUserId(cookieUserKey)
+    users=list()
+    if user.isAdmin:
+        mgr = UserManager()
+        users = mgr.getAllUsers(filterValidated)
+
+        logger.info("getusers::users={}".format(users))
     return jsonify({'users': users})
 
 
@@ -45,16 +76,19 @@ def getuser(user_id):
     :param user_id: uuid
     :return: user in json format
     """
-    logger.info("API USER:: user_id={} / method={}".format(user_id, request.method))
-    logger.info(u"saveuser::user_id:{} / json param:{}".format(user_id, request.json))
+    logger.info("getuser::API USER:: user_id={} / method={}".format(user_id, request.method))
     mgr = UserManager()
     user = mgr.getUserByUserId(user_id)
     if request.method == 'POST':
         userFromClient = request.json["user"]
         #call Service (DAO)
         logger.info(u'saveuser::user={}'.format(user))
+        logger.info(u'saveuser::userid={}'.format(user.user_id))
+        logger.info(u'saveuser::userFromClient={}'.format(userFromClient))
         checkRight=False
-        if user.pwd=="" or user.pwd is None:
+        #first connection
+        if user.nickName == "" and user.description == "":
+            logger.info("nickName &nd descrption are None - First subscription")
             checkRight=True
         else:
             if "cookieUserKey" in session:
@@ -62,20 +96,28 @@ def getuser(user_id):
                 logger.info(u"getuser::cookieUserKey={}".format(cookieUserKey))
                 if (user.user_id==cookieUserKey):
                     checkRight=True
-                userFromCookie = mgr.getUserByUserId(cookieUserKey)
-                if (userFromCookie.isAdmin):
-                    checkRight=True
+                else:
+                    userFromCookie = mgr.getUserByUserId(cookieUserKey)
+                    if (userFromCookie.isAdmin):
+                        checkRight=True
         if (checkRight):
-            mgr.saveUser(user.email, userFromClient["nickName"],
-                         userFromClient["description"], user.user_id, user.validated,
-                         userFromClient["pwd"])
+            if "pwd" in userFromClient:
+                logger.info("pwd set")
+                mgr.saveUser(user.email, userFromClient["nickName"],
+                            userFromClient["description"], user.user_id, user.validated,
+                            userFromClient["pwd"])
+            else:
+                logger.info("thepwd NOT set")
+                mgr.saveUser(user.email, userFromClient["nickName"],
+                    userFromClient["description"], user.user_id, user.validated,
+                    "")
 
             return jsonify({'user': request.json["user"]})
         else:
             return "Ha ha ha ! Mais t'es pas la bonne personne pour faire ça, mon loulou", 403
     else:
         #= GET
-        logger.info("getuser::uuid={}=user={}".format(user_id, user))
+        logger.info("getuser::uuid={} - user={}".format(user_id, user))
         return jsonify({'user': user.__dict__})
 
 
@@ -88,53 +130,28 @@ def subscriptionPost():
     logger.info("subscriptionPost")
     email = request.form['email']
 
+    logger.info(u"subscriptionPost::search by email = {}".format(email))
     mgr = UserManager()
     user = mgr.getUserByEmail(email)
+    tool_mgr = ToolManager()
+
+    url_root = tool_mgr.getProperty("url_root")["value"]
     if user is None:
+        logger.info("subscriptionPost::Email {} unknown - user to be created".format(email))
         tool = ToolManager()
-        #sg = tool.get_sendgrid()
-        #message = sendgrid.Mail()
-
-        #message.add_to(email)
-
-        #message.add_to("eurommxvi.foot@gmail.com")
-        #message.set_from("eurommxvi.foot@gmail.com")
-        #message.set_subject("euroxxxvi - subscription")
-
+        #ne email send because of SPAM wall
         uuid = str(uuid4())
-        logger.info(u"subscriptionPost::user_id:{}".format(uuid))
+        logger.info(u"subscriptionPost::new user:: new user_id will be  = {}".format(uuid))
         mgr.saveUser(email, "", "", uuid, False, "")
-        logger.info(u"\tsubscriptionPost::save done")
-        tool_mgr = ToolManager()
-        url_root = tool_mgr.getProperty("url_root")["value"]
-        urlcallback=u"{}/users/{}/confirmation".format(url_root, uuid)
-        logger.info("urlcallback={}".format(urlcallback))
-        #message.set_html("<html><head></head><body><h1>MERCI DE</h1><h1><a href='{}'>Confirmer votre #inscription</a></h1></hr></body></html>".format(urlcallback))
-
-        #sg.send(message)
-        
-        #from_email = Email("eurommxvi.foot@gmail.com")
-        #to_email = Email(email)
-        #subject = "phipha2018 - subscription"
-        #content = Content("text/html", "<html><head></head><body><h1>Please</h1><h1><a href='{}'> confirm your subscription</a></h1></hr></body></html>".format(urlcallback))
-        #mail = Mail(from_email, subject, to_email, content)
-        #response = sg.client.mail.send.post(request_body=mail.get())
-        #print(response.status_code)
-        #print(response.body)
-        #print(response.headers)
-        #return redirect("{}/#logon_successfull".format(url_root))
+        logger.info(u"\tsubscriptionPost::save done : return uuid={}".format(uuid))
+        urlcallback = u"{}/users/{}/confirmation".format(url_root, uuid)
         return redirect("{}".format(urlcallback))
     else:
-        if user.validated:
-            tool_mgr = ToolManager()
-            url_root = tool_mgr.getProperty("url_root")["value"]
-            return redirect("{}".format(url_root))
-        else:
-            tool_mgr = ToolManager()
-            url_root = tool_mgr.getProperty("url_root")["value"]
-            urlcallback = u"{}/users/{}/confirmation".format(url_root, user.user_id)
-            return redirect("{}".format(urlcallback))
-
+        logger.info("subscriptionPost::Email {} already created : {}-validated={}", email, user.user_id, user.validated)
+        tool_mgr = ToolManager()
+        urlcallback = u"{}/users/{}/confirmation".format(url_root, user.user_id)
+        return redirect("{}".format(urlcallback))  
+          
 @users_page.route('/<user_id>/confirmation', methods=['GET'])
 def confirmationSubscription(user_id):
     u"""
@@ -172,14 +189,16 @@ def confirmationSubscription(user_id):
 
 @users_page.route('/apiv1.0/login', methods=['POST'])
 def login():
-    logger.info("API LOGIN:: param={}/ method={}".format(request.json, request.method))
+    logger.info("login::API LOGIN:: param={}/ method={}".format(request.json, request.method))
     connect = request.json["connect"]
+    logger.info("login::connect={}".format(connect))
     mgr = UserManager()
     user = mgr.authenticate(connect["email"], connect["thepwd"])
-    logger.info("auth user={}".format(user))
+    logger.info("login::auth user={}".format(user))
     if (user is None):
         return "not authenticated", 401
     else:
+        logger.info("login::push cookies={}".format(user.user_id))
         session['cookieUserKey'] = user.user_id
         return jsonify({'user': user.__dict__}), 200
 
@@ -187,7 +206,7 @@ def login():
 # For a given file, return whether it's an allowed type or not
 def allowed_file_type(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in set(['jpg','jpeg','JPG', 'JPEG'])
+           filename.rsplit('.', 1)[1] in set(['jpg','jpeg','JPG', 'JPEG', 'png', 'PNG'])
 
 @users_page.route('/apiv1.0/users/<user_id>/avatar', methods=['POST'])
 def saveAvatar(user_id):
@@ -205,24 +224,37 @@ def saveAvatar(user_id):
         userFromCookie = mgr.getUserByUserId(cookieUserKey)
         if (userFromCookie.isAdmin):
             checkRight=True
+    logger.info("saveAvatar::request={}".format(request))
+
     if (checkRight):
         # Get the name of the uploaded file
+        logger.info("saveAvatar::checkRight")
         file = request.files['file']
         # Check if the file is one of the allowed types/extensions
         if file and allowed_file_type(file.filename):
 
-            data = file.read()
-            file.close()
-
+            length = file.content_length
+            logger.info("saveAvatar::len(data)={}".format(length))
+            
             # check the length (500Ko max)
-            if len(data) < 500000:
+            if length < 500000:
                 mgr = UserManager()
-                avatarId = mgr.saveAvatar(user_id, data)
+                #avatarId = mgr.saveAvatar(user_id, file)
+                """ save an avatar in DB"""
+                #write in File system
+                logger.info("saveAvatar::write into ./dbimg/{}".format(user_id))
+                logger.info("saveAvatar::pwd={}".format(os.getcwd()))
+                logger.info("saveAvatar::file.filename={}".format(file.filename))
+                logger.info("saveAvatar:isDir {} ? ={}".format(uploads_dir, os.path.isdir(uploads_dir)) )
+                logger.info("saveAvatar::content_length={}".format(file.content_length))
+
+                file.save(os.path.join(uploads_dir, user_id))
+                file.close()
                 return "Yes !", 200
             else:
                 return "Size of the file ("+str(len(data))+" ko) more than 500 Ko", 415
         else:
-            return "Non supported file (jpg/jpeg mandatory)", 413
+            return "Non supported file (jpg/jpeg/png mandatory)", 413
     else:
         return "Ha ha ha ! Mais t'es pas la bonne personne pour faire ça, mon loulou", 403
 
@@ -234,13 +266,13 @@ def getAvatar(user_id):
     :param user_id: uuid
     :return: the avatar
     """
-    mgr = UserManager()
-    avatar = mgr.getAvatar(user_id)
-
-    if avatar is None:
-        return send_file('static/img/avatar/default_avatar.png',mimetype='image/png');
+    logger.info(uploads_dir+"/"+user_id)
+    logger.info("saveAvatar::pwd={}".format(os.getcwd()))
+    logger.info("saveAvatar::uploads_dir={}".format(uploads_dir))
+    if (os.path.isfile(uploads_dir+"/"+user_id)):
+        return send_file(uploads_dir+"/"+user_id,mimetype='image/png')
     else:
-        return send_file(io.BytesIO(avatar),mimetype='image/jpg', cache_timeout=0, add_etags=True)
+        return send_file(uploads_dir+"/default_avatar.png",mimetype='image/png')
 
 """
 users_page= remove cookieUserKey
@@ -269,9 +301,9 @@ class User:
         self.isAdmin=u""
 
 
-    def convertFromBson(self, elt):
+    def convertFromDB(self, elt):
         """
-        convert a User object from mongo
+        convert a User object from db
         """
         if 'description' in elt.keys():
             self.description = elt['description']
@@ -279,16 +311,18 @@ class User:
             self.email = elt['email']
         if 'nickName' in elt.keys():
             self.nickName = elt['nickName']
-        if 'user_id' in elt.keys():
-            self.user_id = elt['user_id']
+        if 'uuid' in elt.keys():
+            self.user_id = elt['uuid']
         if 'validated' in elt.keys():
             self.validated = elt['validated']
-        #if 'pwd' in elt.keys():
-        #    self.pwd= elt['pwd']
+        if 'hashedpwd' in elt.keys():
+            self.pwd= elt['hashedpwd']
         if 'isAdmin' in elt.keys():
             self.isAdmin= elt['isAdmin']
+        else:
+            self.isAdmin=False
 
-    def convertIntoBson(self):
+    def convertIntoDB(self):
         """
         convert a User object into mongo Bson format
         """
@@ -297,38 +331,41 @@ class User:
         elt['description'] = self.description
         elt['email'] = self.email
         elt['nickName'] = self.nickName
-        elt['user_id'] = self.user_id
+        elt['uuid'] = self.user_id
         elt['validated'] = self.validated
-        elt['pwd'] = self.pwd
+        elt['hashedpwd'] = self.pwd
         elt['isAmin'] = self.isAdmin
         return elt
 
 class UserManager(DbManager):
 
+
     def getAllUsers(self,filterValidated):
         """ get the list of users"""
         localdb = self.getDb()
         logger.info(u'getAllUsers::db={}'.format(localdb))
+        logger.info(u'getAllUsers::row_factory={}'.format(localdb.row_factory))
 
-        usersColl = localdb.users
-        if filterValidated == "true":
-            logger.info("***** filterValidated TRUE = {}".format(filterValidated))
-            usersList = usersColl.find({"validated": True}).sort("nickName")
-        else:
-            usersList = usersColl.find().sort("nickName")
-        logger.info(u'getAllUsers::usersList={}'.format(usersList))
-        #Faut-il changer de list ou retourner le bson directement ?
-        result = list()
+        """uuid, nickName, desc, avatar, email, isAdmin"""
 
-        for userbson in usersList:
-            logger.info(u'\tgetAllUsers::userbson={}'.format(userbson))
-            user = User()
-            user.convertFromBson(userbson)
-            logger.info(u'\tgetAllUsers::user={}'.format(user))
-            tmpdict = user.__dict__
-            logger.info(u'\tgetAllUsers::tmpdict={}'.format(tmpdict))
-            result.append(tmpdict)
-        return result
+        sql_all_tab="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated
+                        FROM BETUSER order by nickName COLLATE NOCASE ASC;"""
+        #localdb.row_factory = self.dict_factory
+        logger.info(u'getAllUsers::row_factory={}'.format(localdb.row_factory))
+        cur = localdb.cursor()
+        cur.execute(sql_all_tab)
+
+        rows = cur.fetchall()
+        usersList=list()
+        for row in rows:
+            if (filterValidated ):
+                if row["validated"]==1:
+                    usersList.append(row)                    
+            else:
+                usersList.append(row)
+            logger.info(row)
+        
+        return usersList
 
     def hash_password(self,password):
         # uuid is used to generate a random number
@@ -338,66 +375,89 @@ class UserManager(DbManager):
     def saveUser(self, email, nickName, description, user_id, validated, pwd):
         """ save a user"""
         localdb = self.getDb()
-        bsonUser = localdb.users.find_one({"user_id": user_id})
-        logger.info(u'saveUser::{} trouve ? bsonProperty ={}'.format(user_id, bsonUser ))
-
-        if (bsonUser is None):
-            bsonUser =dict()
-            bsonUser ["email"]=email
-            bsonUser ["nickName"]=nickName
-            if user_id is None:
-                user_id=str(uuid4())
-            bsonUser["user_id"]=user_id
-            bsonUser["validated"]=validated
-            bsonUser["pwd"]=self.hash_password(pwd)
-            logger.info(u'\tkey None - to create : {}'.format(bsonUser))
-            id = localdb.users.insert_one(bsonUser).inserted_id
-            logger.info(u'\tid : {}'.format(id))
-        else:
-            logger.info(u'\t try update to bsonUser["_id" : {}] p={}'.format(bsonUser["_id"], pwd))
-            if (pwd != ""):
-                localdb.users.update({"_id":bsonUser["_id"]},
-                    {"$set":{"email":email, "nickName":nickName,
-                             "description" : description, "user_id" : user_id,
-                             "validated":validated, "pwd":self.hash_password(pwd)}}, upsert=True)
+        usr = self.getUserByUserId(user_id)
+        logger.info(u'saveUser::{} trouve ? usr ={}'.format(user_id, usr ))
+        try:            
+            c = localdb.cursor()
+            if (usr is None):
+                usr=User()
+                usr.email=email
+                usr.description=description
+                usr.nickName=nickName
+                usr.validated=validated        
+                usr.user_id=user_id                
+                c.execute("""
+                    insert into BETUSER 
+                    (uuid, nickName, email, description, validated )
+                    values
+                    (?, ?, ?, ?, ? );""", \
+                        (user_id, nickName, email, description,validated))            
             else:
-                localdb.users.update({"_id": bsonUser["_id"]},
-                                     {"$set": {"email": email, "nickName": nickName,
-                                               "description": description, "user_id": user_id,
-                                               "validated": validated}}, upsert=True)
-        result = User()
-        result.convertFromBson(bsonUser)
-        return result
+                logger.info(u'\t try update to user : {} '.format(usr.user_id))
+                usr.email=email
+                usr.description=description
+                usr.nickName=nickName
+                usr.validated=validated        
+                if (pwd != ""):
+                    c.execute("""update BETUSER 
+                    set nickName=?, email=?,description=?, validated=?, hashedpwd=?
+                    where
+                    uuid=?""", (nickName, email, description, validated, self.hash_password(pwd), user_id))            
+                else:
+                    c.execute("""update BETUSER 
+                    set nickName=?, email=?,description=?, validated=?
+                    where
+                    uuid=?""", (nickName, email, description, validated, user_id))            
+            
+            localdb.commit()
+            logger.info(u'saveUser::commit')
+            
+        except sqlite3.Error as e:
+            logger.error(e)
+            logger.info(u'\tid : {}'.format(user_id))
+            localdb.rollback()
+            logger.info(u'saveUser::rollback')
+            usr=None
+            
+        return usr
 
     def getUserByEmail(self, email):
-        """ get one property by key"""
+        """ get one user by email"""
         localdb = self.getDb()
         logger.info(u'getUserByEmail::email={}'.format(email))
 
-        usersColl = localdb.users
-        bsonUser = usersColl.find_one({"email": email})
-        logger.info(u'getUserByEmail::bsonUser={}'.format(bsonUser))
-        if bsonUser is not None:
+        sql="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated, hashedpwd
+                        FROM BETUSER where email='{}' ;"""
+        cur = localdb.cursor()        
+        cur.execute(sql.format(email))
+
+        row = cur.fetchone()
+        logger.info(u'getUserByEmail::user found = {}'.format(row))
+        if row is not None:
             user = User()
-            user.convertFromBson(bsonUser)
+            user.convertFromDB(row)
             return user
         else:
             return None
 
     def getUserByUserId(self, user_id):
-        """ get one property by key"""
+        """ get one user by userid"""
         localdb = self.getDb()
         logger.info(u'getUserByUserId::user_id={}'.format(user_id))
 
-        usersColl = localdb.users
-        bsonUser = usersColl.find_one({"user_id": user_id})
-        logger.info(u'getUserByUserId::bsonUser={}'.format(bsonUser))
-        if bsonUser is not None:
+        sql="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated, hashedpwd
+                        FROM BETUSER where uuid='{}' ;"""
+        cur = localdb.cursor()        
+        cur.execute(sql.format(user_id))
+
+        row = cur.fetchone()
+        logger.info(u'getUserByUserId::user={}'.format(row))
+        if row is not None:
             user = User()
-            user.convertFromBson(bsonUser)
-            logger.info(u'\tgetUserByUserId::res={}'.format(user))
+            user.convertFromDB(row)
             return user
         else:
+            logger.info(u'getUserByUserId::not found !')
             return None
 
     def check_password(self,hashed_password, user_password):
@@ -409,14 +469,11 @@ class UserManager(DbManager):
         localdb = self.getDb()
         logger.info(u'authenticate::email={}/pwd={}'.format(email, pwd))
 
-        usersColl = localdb.users
-        bsonUser = usersColl.find_one({"email": email})
-        logger.info(u'authenticate::bsonUser={}'.format(bsonUser))
-        if bsonUser is not None:
-            user = User()
-            user.convertFromBson(bsonUser)
-            user.pwd = bsonUser['pwd']
-            logger.info(u'authenticate::user.pwd={}'.format(user.pwd))
+        user = self.getUserByEmail(email)
+        #logger.info(u'authenticate::bsonUser={}'.format(bsonUser))
+        #bsonUser=dict()
+        if user is not None:
+            logger.info(u'authenticate::hashed user.pwd={}'.format(user.pwd))
             if self.check_password(user.pwd, pwd):
                 logger.info(u'authenticated::user={}'.format(user))
                 return user
@@ -424,26 +481,16 @@ class UserManager(DbManager):
                 return None
         else:
             return None
-
+        
     def saveAvatar(self,user_id, file):
         """ save an avatar in DB"""
+        #write in File system
+        logger.info("saveAvatar::write into ./dbimg/{}".format(user_id))
+        logger.info("saveAvatar::pwd={}".format(os.getcwd()))
+        logger.info("saveAvatar::uploads_dir={}".format(uploads_dir))
+        logger.info("saveAvatar:isDir {} ? ={}".format(uploads_dir, os.path.isdir(uploads_dir)) )
 
-        localdb = self.getDb()
-
-        avatarFromDB = localdb.avatars.find_one({"avatar_user_id": user_id})
-
-        if avatarFromDB is None:
-            bsonAvatar =dict()
-            bsonAvatar["avatar_user_id"]=user_id
-            bsonAvatar["file"] = Binary(file,0)
-            #logger.info(u'\t**** CREATION : {}'.format(bsonAvatar))
-            logger.info(u'\t**** CREATION ****')
-            localdb.avatars.insert_one(bsonAvatar)
-        else:
-            #logger.info(u'\t**** UPDATE : {}'.format(avatarFromDB))
-            logger.info(u'\t**** UPDATE ****')
-            localdb.avatars.update({"_id":avatarFromDB["_id"]},
-                                            {"$set":{"file":Binary(file,0)}}, upsert=True)
+        file.save(os.path.join(uploads_dir, user_id))
         return user_id
 
     def getAvatar(self,user_id):
@@ -469,7 +516,7 @@ class UserManager(DbManager):
 
         for userbson in usersList:
             user = User()
-            user.convertFromBson(userbson)
+            user.convertFromDB(userbson)
             logger.info(u'\tgetUsersByUserIdList::user={}'.format(user))
             tmpdict = user.__dict__
             logger.info(u'\tgetUsersByUserIdList::tmpdict={}'.format(tmpdict))

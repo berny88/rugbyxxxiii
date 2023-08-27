@@ -97,43 +97,7 @@
 
         </div>
 
-        <div class="col-md-6">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <div class="pull-left">
-                            <h4>List of communities with bets</h4>
-                        </div>
-                        <div class="pull-right"></div>
-                        <div class="clearfix"></div>
-                    </h4>
-                </div>
-                <div class="panel-body">
-                    <div id="no-more-tables" class="table-responsive">
-                        <table class="table table-condensed table-striped">
-                            <thead>
-                            <tr>
-                                <th class="title">
-                                    <a ng-click="sortType='title';sortReverse=!sortReverse">Title<span ng-show="sortType=='title'&&!sortReverse" class="glyphicon glyphicon-chevron-down"></span><span ng-show="sortType=='title' && sortReverse" class="glyphicon glyphicon-chevron-up"></span></a>
-                                </th>
-                                <th class="description">Description</th>
-                            </tr>
-                            </thead>
-
-                            <tbody ng-init="getCommunitiesByPlayer();">
-                            <tr ng-repeat="community in communities | orderBy:sortType:sortReverse">
-                                <td data-title="Communauté">{{community.title}}</td>
-                                <td data-title="Description">{{community.description}}</td>
-                                <td><span><a class="btn btn-default" href="#!/bet_in_community/{{community.com_id}}"><i class="glyphicon glyphicon-log-in"></i> Go !</a></span></td>
-                            </tr>
-
-                            </tbody>
-                        </table>
-                    </div>
-                    <center><span id="spin"><img src="static/img/spin.gif"></span></center>
-                </div>
-            </div>
-        </div>
+        
     </div>
 </div>
 

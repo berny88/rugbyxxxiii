@@ -5,10 +5,10 @@ betApp.config(function($routeProvider) {
     $routeProvider
 
         // route for index
-        .when('/accueil', { templateUrl:'static/accueil.html', controller:'CommunitiesCtrl' })
+        .when('/home', { templateUrl:'static/home.html', controller:'CommunitiesCtrl' })
         .when('/accueil2', { templateUrl:'static/accueil.html', controller:'CommunitiesCtrl' })
         .when('/accueil3', { templateUrl:'static/accueil.html', controller:'CommunitiesCtrl' })
-        .when('/', { templateUrl:'static/accueil.html', controller:'CommunitiesCtrl' })
+        .when('/', { templateUrl:'static/home.html', controller:'CommunitiesCtrl' })
 
         //subscription process
         // to subscribe to the site
@@ -26,11 +26,6 @@ betApp.config(function($routeProvider) {
         // to logout
         .when('/logout', { templateUrl:'users/static/logout.html', controller:'LogoutCtrl' })
 
-        // route for communities
-        .when('/communities', { templateUrl:'communities/static/communities.html', controller:'CommunitiesCtrl' })
-        .when('/view_community/:com_id', { templateUrl:'communities/static/view_community.html', controller:'CommunitiesCtrl' })
-        .when('/create_community', { templateUrl:'communities/static/create_community.html', controller:'CommunitiesCtrl' })
-        .when('/update_community/:com_id', { templateUrl:'communities/static/update_community.html', controller:'CommunitiesCtrl' })
 		.when('/bets_of_the_day_in_community/:com_id', { templateUrl:'communities/static/bets_of_the_day_in_community.html', controller:'CommunitiesCtrl' })
 		.when('/bet_in_community/:com_id', { templateUrl:'communities/static/bet_in_community.html', controller:'CommunitiesCtrl' })
 		.when('/rank_in_community/:com_id', { templateUrl:'communities/static/rank_in_community.html', controller:'CommunitiesCtrl' })
@@ -38,7 +33,7 @@ betApp.config(function($routeProvider) {
 		.when('/blog_in_community/:com_id', { templateUrl:'communities/static/blog_in_community.html', controller:'CommunitiesCtrl' })
 
         // route for matchs page: "static page"
-        .when('/matchs', { templateUrl:'matchs/static/matchs.html', controller:'matchsCtrl' })
+        .when('/matchs', { templateUrl:'matchs/static/calendrier.html', controller:'matchsCtrl' })
         .when('/admin_matchs', { templateUrl:'matchs/static/admin_matchs.html', controller:'matchsCtrl' })
 
         // route for stats: "buble graph" & ranking
