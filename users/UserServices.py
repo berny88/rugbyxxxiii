@@ -135,7 +135,8 @@ def subscriptionPost():
     user = mgr.getUserByEmail(email)
     tool_mgr = ToolManager()
 
-    url_root = tool_mgr.getProperty("url_root")["value"]
+    #url_root = tool_mgr.getProperty("url_root")["value"]
+    url_root = ""
     if user is None:
         logger.info("subscriptionPost::Email {} unknown - user to be created".format(email))
         tool = ToolManager()
@@ -145,6 +146,7 @@ def subscriptionPost():
         mgr.saveUser(email, "", "", uuid, False, "")
         logger.info(u"\tsubscriptionPost::save done : return uuid={}".format(uuid))
         urlcallback = u"{}/users/{}/confirmation".format(url_root, uuid)
+        logger.info(u"\tsubscriptionPost::urlcallback={}".format(urlcallback))
         return redirect("{}".format(urlcallback))
     else:
         logger.info("subscriptionPost::Email {} already created : {}-validated={}".format(email, user.user_id, user.validated))
