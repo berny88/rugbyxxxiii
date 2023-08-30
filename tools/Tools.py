@@ -157,6 +157,17 @@ class ToolManager(DbManager):
         for row in rows:
             logger.info(row)
 
+        try:
+            c = conn.cursor()
+            uuid = str(uuid4())
+            c.execute("""insert into PROP 
+                        (key, value)
+                        values
+                        ('url_root', 'https://2023xvrugby.pythonanywhere.com/');""")
+           
+            conn.commit()
+        except sqlite3.Error as e:
+            print(e)
         self.initAdmin(conn)
 
 
