@@ -147,7 +147,7 @@ def subscriptionPost():
         urlcallback = u"{}/users/{}/confirmation".format(url_root, uuid)
         return redirect("{}".format(urlcallback))
     else:
-        logger.info("subscriptionPost::Email {} already created : {}-validated={}", email, user.user_id, user.validated)
+        logger.info("subscriptionPost::Email {} already created : {}-validated={}".format(email, user.user_id, user.validated))
         tool_mgr = ToolManager()
         urlcallback = u"{}/users/{}/confirmation".format(url_root, user.user_id)
         return redirect("{}".format(urlcallback))  
@@ -173,16 +173,6 @@ def confirmationSubscription(user_id):
     
     tool_mgr = ToolManager()
     url_root = tool_mgr.getProperty("url_root")["value"]
-    
-    # from_email = Email("eurommxvi.foot@gmail.com")
-    # to_email = Email(user.email)
-    # subject = "phipha2018 - confirmation"
-    # content = Content("text/html", "<html><head></head><body><h1><a href='{}'>Congratulations on your registration ! </a></h1></hr></body></html>")
-    # mail = Mail(from_email, subject, to_email, content)
-    # response = sg.client.mail.send.post(request_body=mail.get())
-    # print(response.status_code)
-    # print(response.body)
-    # print(response.headers)
 
 
     return redirect("{}/#!/user_detail/{}/?firstConnection=true".format(url_root,user_id))

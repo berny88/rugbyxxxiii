@@ -44,47 +44,34 @@ betApp.controller('BetsCtrl', ['$scope', '$routeParams', '$http', '$q', '$locati
             return bet.category === 'FINAL';
         };
 
-        // Jauge :
-        var config = liquidFillGaugeDefaultSettings();
-        config.circleThickness = 0.1;
-        config.circleFillGap = 0.1;
-        config.textVertPosition = 0.8;
-        config.waveAnimateTime = 1000;
-        config.waveHeight = 0.1;
-        config.waveCount = 3;
-        var gauge= loadLiquidFillGauge("fillgauge", 0, config);
-
+        
+        
         $scope.getBetsByCommunityId = function() {
-
+            
             $scope.bets = {};
+            $scope.displaySaveButton = false;
 
             hideAlerts();
 
             $('#spin_bets_groupe').show();
             $('#spin_bets_final').show();
+            console.log("getBetsByCommunityId");
 
             if (isConnected($window)) {
                 //$http.get('communities/apiv1.0/communities/'+ com_id + '/users/'+ getConnectedUser($window).user_id +'/bets ', {timeout: canceler.promise})
-                $http.get('communities/apiv1.0/communities/'+ $routeParams.com_id + '/users/'+ getConnectedUser($window).user_id +'/bets ', {timeout: canceler.promise})
+                $http.get('bets/apiv1.0/'+ getConnectedUser($window).user_id +'/bets', {timeout: canceler.promise})
                 .then(function(answer, status, headers, config) {
                     $scope.bets = answer.data;
+                    console.log("getBetsByCommunityId::bets=", $scope.bets);
 
                     // to disable the input fields in the form
-                    $scope.displaySaveButton = false;
+                    $scope.displaySaveButton = true;
                     $scope.bets.bets.forEach(function(bet) {
-                        if (Date.parse(bet.dateDeadLineBet) > new Date()) {
-                            bet.notClosed = true;
-                            $scope.displaySaveButton = true;
-                        } else {
-                            bet.notClosed = false;
-                        }
+                        bet.notClosed=!bet.blocked;
                     });
 
-                    $('#spin_bets_groupe').hide();
-                    $('#spin_bets_final').hide();
 
-                    $scope.gaugeUpdate($scope.bets.bets)
-
+                    
                 },
                 function(data, status, headers, config) {
                     if (status==-1) {
@@ -94,31 +81,18 @@ betApp.controller('BetsCtrl', ['$scope', '$routeParams', '$http', '$q', '$locati
                     }
                     $('#spin_bets_groupe').hide();
                     $('#spin_bets_final').hide();
-                    gauge.update(0);
+                    
                 });
             }
 
         }
 
-        $scope.gaugeUpdate = function(bets) {
-            $scope.nbBetsTot = 0;
-            $scope.nbBetsUser = 0;
-            bets.forEach(function(bet) {
-                if ((bet.resultA != null) && (bet.resultB != null)) {
-                    $scope.nbBetsUser = $scope.nbBetsUser + 1;
-                }
-                $scope.nbBetsTot = $scope.nbBetsTot +1;
-            });
-
-            $scope.gauge = Math.ceil($scope.nbBetsUser * 100 / $scope.nbBetsTot);
-            gauge.update($scope.gauge);
-        }
-
+ 
         $scope.saveBets = function() {
 
             $('#pleaseWaitDialog').modal('show');
 
-            $http.put('communities/apiv1.0/communities/'+ $routeParams.com_id + '/users/'+ getConnectedUser($window).user_id +'/bets ', {bets: $scope.bets.bets, timeout: canceler.promise})
+            $http.put('bets/apiv1.0/'+ getConnectedUser($window).user_id +'/bets', {bets: $scope.bets.bets, timeout: canceler.promise})
             .then(function(answer, status, headers, config) {
                 //showAlertSuccess("Paris sauvegardés !");
                 $.notify("Bets saved !" , "success");

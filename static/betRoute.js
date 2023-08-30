@@ -26,23 +26,16 @@ betApp.config(function($routeProvider) {
         // to logout
         .when('/logout', { templateUrl:'users/static/logout.html', controller:'LogoutCtrl' })
 
-		.when('/bets_of_the_day_in_community/:com_id', { templateUrl:'communities/static/bets_of_the_day_in_community.html', controller:'CommunitiesCtrl' })
-		.when('/bet_in_community/:com_id', { templateUrl:'communities/static/bet_in_community.html', controller:'CommunitiesCtrl' })
-		.when('/rank_in_community/:com_id', { templateUrl:'communities/static/rank_in_community.html', controller:'CommunitiesCtrl' })
-		.when('/bets_in_community/:com_id', { templateUrl:'communities/static/bets_in_community.html', controller:'CommunitiesCtrl' })
-		.when('/blog_in_community/:com_id', { templateUrl:'communities/static/blog_in_community.html', controller:'CommunitiesCtrl' })
+		.when('/bets', { templateUrl:'bets/static/bets.html', controller:'BetsCtrl' })
 
         // route for matchs page: "static page"
         .when('/matchs', { templateUrl:'matchs/static/calendrier.html', controller:'matchsCtrl' })
         .when('/admin_matchs', { templateUrl:'matchs/static/admin_matchs.html', controller:'matchsCtrl' })
 
         // route for stats: "buble graph" & ranking
-        .when('/stats_1', { templateUrl:'stats/static/stats_1.html', controller:'statsMatchsCtrl' })
-        .when('/stats_2', { templateUrl:'stats/static/stats_2.html', controller:'statsHuitMatchsCtrl' })
         .when('/stats_ranking', { templateUrl:'stats/static/stats_ranking.html', controller:'statsRankingCtrl' })
         .when('/stats_global', { templateUrl:'stats/static/stats_global.html', controller:'statsRankingCtrl' })
         .when('/stats_historyranking', { templateUrl:'stats/static/stats_historyranking.html', controller:'statsRankingCtrl' })
-        .when('/stats_communities_ranking', { templateUrl:'stats/static/stats_communities_ranking.html', controller:'statsRankingCtrl' })
 
         // route for tirage: "static page"
         .when('/tirage', { templateUrl:'static/tirage.html', controller:'tirageCtrl' })
@@ -63,5 +56,5 @@ betApp.config(function($routeProvider) {
         .when('/contact', { templateUrl:'static/contact.html', controller:'indexCtrl' })
 
         // default
-        .otherwise({ templateUrl:'static/accueil.html', controller:'CommunitiesCtrl' });
+        .otherwise({ templateUrl:'static/home.html', controller:'CommunitiesCtrl' });
 });

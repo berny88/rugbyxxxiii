@@ -20,7 +20,7 @@
         </div>
 
         <br/>
-        <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign"></span> You must be logged in to update your nickname/description, setup your password, and upload your avatar.</div>
+        <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign"></span> You must be logged in to update your nickname/description, setup your password.</div>
 
         <div class="row-fluid" >
             <div class="col-xs-12">
@@ -29,8 +29,7 @@
                     <thead>
                         <tr>
                             <th class="nickName">Nickname</th>
-                            <th class="avatar">Avatar</th>
-                            <th class="description">Description</th>
+                            <th class="description">Country</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -38,9 +37,6 @@
                         <tr ng-repeat="user in users.users | filter : user_filter">
                             <td data-title="Nickname">
                                 {{ user.nickName }}
-                            </td>
-                            <td data-title="Avatar">
-                                <img height="32px" width="32px" class="img-focus-avatar img-circle" ng-src ="users/apiv1.0/users/{{ user.user_id }}/avatar?{{ currentDateForAvoidTheCache }}">
                             </td>
                             <td data-title="Description">
                                 {{ user.description }}&nbsp;

@@ -27,6 +27,7 @@ class DbManager:
     Load all match from json file
     """
     def __init__(self):
+        #self.DATE_FORMAT = '%d/%m/%Y %H:%M:%S'
         self.DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
         con = sqlite3.connect('bet_xxxxi.db')
         self.db = con

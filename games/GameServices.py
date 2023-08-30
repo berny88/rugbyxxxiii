@@ -1,35 +1,32 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, jsonify, request, session
-from bson.objectid import ObjectId
 import logging
 import math
-import sendgrid
-from sendgrid.helpers.mail import *
+import sqlite3
 from tools.Tools import DbManager, ToolManager
 from users.UserServices import UserManager
-from bets.BetsServices import BetsManager
 
 logger = logging.getLogger(__name__)
 
-matchs_page = Blueprint('matchs_page', __name__,
+games_page = Blueprint('games_page', __name__,
                        template_folder='templates', static_folder='static')
 
 
 
-@matchs_page.route('/matchslist', methods=['GET'])
+@games_page.route('/matchslist', methods=['GET'])
 def matchslist():
-    return matchs_page.send_static_file('matchs.html')
+    return games_page.send_static_file('matchs.html')
 
 
-@matchs_page.route('/apiv1.0/matchs', methods=['GET'])
+@games_page.route('/apiv1.0/matchs', methods=['GET'])
 def getMatchs():
-    mgr = MatchsManager()
+    mgr = GamesManager()
     matchs=mgr.getAllMatchs()
     logger.info(">>{}".format(jsonify({'matchs': matchs}).data))
 
     return jsonify({'matchs': matchs})
 
-@matchs_page.route('/apiv1.0/matchs', methods=['PUT'])
+@games_page.route('/apiv1.0/matchs', methods=['PUT'])
 def updateMatchsResults():
     u"""
     save the result of matchs.
@@ -43,7 +40,7 @@ def updateMatchsResults():
         no_save=False
     logger.info("updateMatchsResults::no_save={}".format(no_save))
     if "cookieUserKey" in session:
-        mgr = MatchsManager()
+        mgr = GamesManager()
         matchsjson = request.json["matchs"]
         cookieUserKey = session['cookieUserKey']
         user_mgr = UserManager()
@@ -171,94 +168,75 @@ class Match:
         #finally we update nb of points
         bet.nbpoints = nb_point
 
-class MatchsManager(DbManager):
+class GamesManager(DbManager):
 
     def getAllMatchs(self):
         """
         get the complete list of matchs
         """
+        """
+        get the complete list of matchs
+        """
         localdb = self.getDb()
-        logger.info(u'getAllMatchs::db={}'.format(localdb))
 
-        matchsColl = localdb.matchs
-        matchsList = matchsColl.find().sort("dateMatch")
-        logger.info(u'getAllMatchs::matchsList={}'.format(matchsList))
-        #Faut-il changer de list ou retourner le bson directement ?
+        """uuid, nickName, desc, avatar, email, isAdmin"""
+
+        sql_all_games="""SELECT category, key, date, libteamA, teamA, libteamB, teamB,
+            resultA, resultB
+                        FROM GAME order by date, key;"""
+        cur = localdb.cursor()
+        cur.execute(sql_all_games)
+
+        rows = cur.fetchall()
         result = list()
-
-        for matchbson in matchsList :
-            logger.info(u'\tgetAllMatchs::matchsbson={}'.format(matchbson))
-            match = Match()
-            match.convertFromBson(matchbson)
-            logger.info(u'\tgetAllMatchs::match={}'.format(match))
-            tmpdict = match.__dict__
-            logger.info(u'\tgetAllMatchs::tmpdict={}'.format(tmpdict))
-            result.append(tmpdict)
+        for row in rows:
+            result.append(row)                    
+            logger.info("game={}".format(row))
         return result
 
 
     def update_all_matchs(self, matchs_to_update, no_save):
         #load all match from db (because we just want to update result
-        logger.info(u"update_all_matchs::start-before getAllMatchs")
-        matchs = self.getAllMatchs()
-        logger.info(u"update_all_matchs::end getAllMatchs")
+        logger.info(u"update_all_matchs::start-games to update {}".format(matchs_to_update))
         nb_hits=0
-        bets_for_mail = list()
-        bet_mgr = BetsManager()
-        betList = bet_mgr.get_all_bets()
-        logger.info(u"update_all_matchs::end get_all_bets")
-        for m in matchs:
+        #bet_mgr = BetsManager()
+        for m in matchs_to_update:
             match = Match()
-            match.convertFromBson(m)
+            match.convertFromDict(m)
             match_key=match.key
-            #quick filter !! i love python
-            unique_match_list = [x for x in matchs_to_update if x["key"] == match_key]
-            match_dict=unique_match_list[0]
-            if match_dict is not None:
-                match.resultA = match_dict["resultA"]
-                match.resultB = match_dict["resultB"]
-                if not no_save:
-                    # mettre à jour juste les resultats
-                    logger.info(u'\tupdate_all_matchs::try update match["key" : {}] with match={}'.format(match_key, match_dict))
-                    result = self.getDb().matchs.update_one({"key": match_key},
-                                         {"$set": {"resultA": match_dict["resultA"],
-                                                   "resultB": match_dict["resultB"]}}, upsert=True)
-                    nb_hits = nb_hits + result.matched_count
-                else:
-                    logger.info("no match updated")
+            betList = bet_mgr.getBetsOfGame(match_key)
+            if not no_save:
+                # mettre à jour juste les resultats
+                logger.info(u'\tupdate_all_matchs::try update game :{}'.format(m))
+                try:
+                    localdb = self.getDb()
+                    c = localdb.cursor()
+                    c.execute("""update GAME 
+                                set resultA=?, resultB=?
+                                where
+                                key=?""", (match.resultA, match.resultB, match.key))  
+                    localdb.commit()
+                            
+                except sqlite3.Error as e:
+                    logger.error(e)
+                    logger.info(u'\tid : {}'.format(bet))
+                    localdb.rollback()
+                    logger.info(u'update_all_matchs::rollback')
+                nb_hits = nb_hits + 1
             else:
-                logger.warn(u'\tmatch notfound in matchs_to_update["key" : {}]'.format(match_key))
-
+                logger.info("no match updated")
+            
             # pour chaque match demander à betmanager de calculer le nb de points de chq bet
             # le principe sera de calculer le nbde pts d'un user = somme de ses paris
-            shortList = [b for b in betList if b.key == m["key"]]
-            for bet in shortList:
-                match.computeResult(bet)
-                logger.info(
-                    u'\t\tupdate_all_matchs::bet={}/{} - nbpts={}'.format(bet.key, bet.user_id, bet.nbpoints))
-                bets_for_mail.append(self.format_bet(bet, match))
+            #for bet in betList:
+            #    match.computeResult(bet)
+            #    logger.info(
+            #        u'\t\tupdate_all_matchs::bet={}/{} - nbpts={}'.format(bet.game_id, bet.user_id, bet.nbPoints))
+            #    bet_mgr.saveScore(bet)
 
-        if not no_save:
-            for bet in betList:
-                logger.info("bet update")
-                bet_mgr.saveScore(bet)
-
-        from_email = Email("eurommxvi.foot@gmail.com")
-        to_email = Email("eurommxvi.foot@gmail.com")
-        subject = "phipha2018 - bets saved"
-        head = u"<html><head></head><body><table border='1'><tr><td>m.key</td><td>teamA</td><td>teamB</td><td>resultA</td>"
-        head=head+u"<td>resultB</td><td>&nbsp;</td><td>bet.key</td><td>com_id</td><td>user_id</td>"
-        head=head+u"<td>bet.resultA</td><td>bet.resultB</td><td>bet.nbpoints</td></tr>"
-        content = Content("text/html", head+"\n".join(bets_for_mail)+"</table></body></html>")
-        mail = Mail(from_email, subject, to_email, content)
-        tool = ToolManager()
-        sg = tool.get_sendgrid()
-        response = sg.client.mail.send.post(request_body=mail.get())
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
 
         return None
+
 
     def format_bet(self, bet, match):
         result = u"<tr>"
