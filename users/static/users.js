@@ -207,14 +207,17 @@ betApp.controller('LoginCtrl', ['$scope', '$http', '$q', '$routeParams', '$locat
                 $.notify("Welcome "+answer.data.user.nickName +" !!" , "success");
             },
             function(data, status, headers, config) {
+                console.log("login::Login error:data", data)
                 if (status==-1) {
                     //do nothing
                 } else if (status==404){
                     showAlertError("Ben, tu veux allez en vrai ? : status=" + status);
                 }else if (status==401){
                     showAlertError("Bad login/password, try again !");
+                }else if (data.status==401){
+                    showAlertError("Not Authorized : Bad login/password, try again !");
                 }else{
-                    showAlertError("Erreur lors de connexion ; erreur HTTP : " + status + " " + data);
+                    showAlertError("Erreur lors de connexion ; erreur HTTP : " + data.status + " " + data);
                 }
             });
 
