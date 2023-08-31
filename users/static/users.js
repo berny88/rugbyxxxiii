@@ -11,13 +11,19 @@ betApp.controller('UsersListCtrl', ['$scope', '$http', '$q', '$window', function
             .then(function(answer) {
                 //ng-repeat :
                 $scope.users = answer.data;
+                console.log("$scope.users=", $scope.users);
+            
             });
         }
 
         $scope.canUpdate = function(user_id) {
+            console.log("user=", user_id);
             var currentUser = {};
             if (isConnected($window)) {
                 currentUser = getConnectedUser($window);
+                console.log("currentUser=", currentUser);
+            }else{
+                return false;    
             }
             return ((currentUser.user_id == user_id) || isAdmin($window)) ? true : false;
         }

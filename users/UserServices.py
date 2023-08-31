@@ -44,7 +44,7 @@ def getusers():
     users = mgr.getAllUsers(filterValidated)
     for u in users:
         u["email"]=""
-        u["uuid"]=""
+        
 
     logger.info("getusers::users={}".format(users))
     return jsonify({'users': users})
