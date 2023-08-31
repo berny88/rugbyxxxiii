@@ -17,11 +17,11 @@ betApp.controller('UsersListCtrl', ['$scope', '$http', '$q', '$window', function
         }
 
         $scope.canUpdate = function(user_id) {
-            console.log("user=", user_id);
+            //console.log("user=", user_id);
             var currentUser = {};
             if (isConnected($window)) {
                 currentUser = getConnectedUser($window);
-                console.log("currentUser=", currentUser);
+                //console.log("currentUser=", currentUser);
             }else{
                 return false;    
             }

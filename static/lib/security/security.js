@@ -15,6 +15,7 @@ function setConnectedUserInStorage($window, currentUser) {
 }
 
 function isConnected($window) {
+    //console.log("$window.sessionStorage[currentUser]", $window.sessionStorage["currentUser"]);
     if (!$window.sessionStorage["currentUser"]) {
         return false;
     }
@@ -24,7 +25,8 @@ function isConnected($window) {
     if ($window.sessionStorage["currentUser"] == "null") {
         return false;
     }
-    return true
+    console.log("isConnected=true");
+    return true;
 }
 
 function getConnectedUser($window) {
