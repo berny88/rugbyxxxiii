@@ -5,7 +5,7 @@ betApp.config(function($routeProvider) {
     $routeProvider
 
         // route for index
-        .when('/home', { templateUrl:'static/home.html', controller:'UsersListCtrl' })
+        .when('/home', { templateUrl:'static/home.html', controller:'indexCtrl' })
         .when('/accueil2', { templateUrl:'static/accueil.html', controller:'UsersListCtrl' })
         .when('/accueil3', { templateUrl:'static/accueil.html', controller:'UsersListCtrl' })
         .when('/', { templateUrl:'static/home.html', controller:'UsersListCtrl' })
@@ -56,5 +56,5 @@ betApp.config(function($routeProvider) {
         .when('/contact', { templateUrl:'static/contact.html', controller:'indexCtrl' })
 
         // default
-        .otherwise({ templateUrl:'static/home.html', controller:'UsersListCtrl' });
+        .otherwise({ templateUrl:'static/home.html', controller:'indexCtrl' });
 });

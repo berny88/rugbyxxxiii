@@ -22,19 +22,12 @@
 -->
 
 <br />
+<div ng-show="indexIsConnected()" class="container-fluid">
+    <center>You are at home  !!! <br> You can bet <a href="#!/bets">here </a></center>
+</div>
+<div ng-show="!indexIsConnected()" class="container-fluid">
 
-<div ng-show="!isConnected()" class="container-fluid">
-
-    <div class=" jumbotron container-fluid">
-        <div class="row-fluid">
-
-            <center>
-                <span ng-init="injectCounter()" id="counter"></span>
-            </center>
-
-        </div>
-    </div>
-
+    
     <br/>
 
     <div class="row" >

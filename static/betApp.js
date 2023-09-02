@@ -15,9 +15,15 @@ betApp.run(function($rootScope, $templateCache) {
 betApp.controller('indexCtrl', function($scope, $window) {
     $scope.message = 'RUGBY 2023';
     $scope.comment = 'Amazing bet site';
-
-    $scope.isConnected = function() {
-        return isConnected($window);
+    $scope.isConn = false;
+    //console.log("indexCtrl::load::$scope.isConn=", $scope.isConn);
+    //alert("indexCtrl::load::isConn="+$scope.isConn);
+        
+    $scope.indexIsConnected = function() {
+        $scope.isConn = isConnected($window);
+        //alert("indexCtrl::isConn="+$scope.isConn);
+        console.log("indexCtrl::$scope.isConn=", $scope.isConn);
+        return $scope.isConn;
     }
 
     function js_yyyy_mm_dd_hh_mm_ss (myDate) {

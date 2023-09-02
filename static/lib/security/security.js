@@ -25,7 +25,7 @@ function isConnected($window) {
     if ($window.sessionStorage["currentUser"] == "null") {
         return false;
     }
-    console.log("isConnected=true");
+    //console.log("security::isConnected=true");
     return true;
 }
 

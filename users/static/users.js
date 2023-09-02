@@ -1,5 +1,5 @@
 betApp.controller('UsersListCtrl', ['$scope', '$http', '$q', '$window', function ($scope, $http, $q, $window) {
-
+        
         var canceler = $q.defer();
 
         // to avoid the cache of the images (avatars)
@@ -204,7 +204,7 @@ betApp.controller('LoginCtrl', ['$scope', '$http', '$q', '$routeParams', '$locat
                 if ($routeParams.callback) {
                     $location.path("/" + $sce.trustAsResourceUrl($routeParams.callback))
                 } else {
-                    $location.path("/accueil")
+                    $location.path("/home")
                 }
                 $location.search('callback', null)
                 //$timeout(function() {
