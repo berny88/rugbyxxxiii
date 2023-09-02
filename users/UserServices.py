@@ -31,25 +31,58 @@ def getInitDB():
     tmgr.createDb()
     return jsonify({'DBcreated': "yes"})
 
+@users_page.route('/apiv1.0/admin/forceTheBerny', methods=['GET'])
+def forceTheBerny():
+    user_mgr = UserManager()
+    user = user_mgr.getUserByEmail("bernard.bougeon@gmail.com")
+    if not user.isAdmin:
+        user.isAdmin=True
+        #no pwd update - juste force attrb admin
+        user_mgr.forceIsAdmin( user.user_id)
+        return jsonify({'forceTheBerny': "Done"})   
+    else:
+        return jsonify({'forceTheBerny': "Alreay Admin"})   
+
 @users_page.route('/apiv1.0/admin/cleanDB', methods=['GET'])
 def cleanDB():
-    tmgr = ToolManager()
-    logger.info("UserServices::cleanBet")
-    tmgr.cleanBet()
-    logger.info("UserServices::cleanUser")
-    tmgr.cleanUser()
-    logger.info("UserServices::initGames")
-    tmgr.initGames()
-    return jsonify({'cleanDB': "yes"})
+    if "cookieUserKey" in session:
+        cookieUserKey = session['cookieUserKey']
+        user_mgr = UserManager()
+        user = user_mgr.getUserByUserId(cookieUserKey)
+        if user.isAdmin:
+            tmgr = ToolManager()
+            logger.info("UserServices::cleanBet")
+            tmgr.cleanBet()
+            logger.info("UserServices::cleanUser")
+            tmgr.cleanUser()
+            logger.info("UserServices::initGames")
+            tmgr.initGames()
+            return jsonify({'cleanDB': "yes"})        
+        else:
+            logger.info(u"cleanDB::No Admin = 403")
+            return "Ha ha ha ! Mais t'es pas la bonne personne pour faire ça, mon loulou", 403
+    else:
+        return "Ha ha ha ! Mais t'es qui pour faire ça, mon loulou ?", 403
+
 
 @users_page.route('/apiv1.0/admin/initGames', methods=['GET'])
 def initGames():
-    tmgr = ToolManager()
-    logger.info("UserServices::cleanBet")
-    tmgr.cleanBet()
-    logger.info("UserServices::initGames")
-    tmgr.initGames()
-    return jsonify({'initGames': "yes"})
+    if "cookieUserKey" in session:
+        cookieUserKey = session['cookieUserKey']
+        user_mgr = UserManager()
+        user = user_mgr.getUserByUserId(cookieUserKey)
+        if user.isAdmin:
+            tmgr = ToolManager()
+            logger.info("UserServices::cleanBet")
+            tmgr.cleanBet()
+            logger.info("UserServices::initGames")
+            tmgr.initGames()
+            return jsonify({'initGames': "yes"})
+        else:
+            logger.info(u"initGames::No Admin = 403")
+            return "Ha ha ha ! Mais t'es pas la bonne personne pour faire ça, mon loulou", 403
+    else:
+        return "Ha ha ha ! Mais t'es qui pour faire ça, mon loulou ?", 403
 
 @users_page.route('/apiv1.0/users', methods=['GET'])
 def getusers():
@@ -389,6 +422,34 @@ class UserManager(DbManager):
         salt = uuid4().hex
         logger.info(u'hash_password salt ={}'.format(salt ))
         return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
+
+    def forceIsAdmin(self, user_id):
+        """ save a user"""
+        localdb = self.getDb()
+        usr = self.getUserByUserId(user_id)
+        logger.info(u'forceIsAdmin::{} trouve ? usr ={}'.format(user_id, usr ))
+        try:            
+            c = localdb.cursor()
+            if (usr is None):
+                logger.info(u"user must be initialized before")
+            else:
+                logger.info(u'\t try update to user : {} '.format(usr.user_id))
+                c.execute("""update BETUSER 
+                set isAdmin=?
+                where
+                uuid=?""", (True, user_id))            
+            
+            localdb.commit()
+            logger.info(u'saveUser::commit')
+            
+        except sqlite3.Error as e:
+            logger.error(e)
+            logger.info(u'\tid : {}'.format(user_id))
+            localdb.rollback()
+            logger.info(u'saveUser::rollback')
+            usr=None
+            
+        return usr
 
     def saveUser(self, email, nickName, description, user_id, validated, pwd, country):
         """ save a user"""
