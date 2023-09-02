@@ -304,7 +304,7 @@ class ToolManager(DbManager):
             conn.commit()
         except sqlite3.Error as e:
             print(e)
-        self.initAdmin(conn)
+        #self.initAdmin(conn)
 
 
 
