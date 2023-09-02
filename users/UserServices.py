@@ -31,6 +31,25 @@ def getInitDB():
     tmgr.createDb()
     return jsonify({'DBcreated': "yes"})
 
+@users_page.route('/apiv1.0/admin/cleanDB', methods=['GET'])
+def cleanDB():
+    tmgr = ToolManager()
+    logger.info("UserServices::cleanBet")
+    tmgr.cleanBet()
+    logger.info("UserServices::cleanUser")
+    tmgr.cleanUser()
+    logger.info("UserServices::initGames")
+    tmgr.initGames()
+    return jsonify({'cleanDB': "yes"})
+
+@users_page.route('/apiv1.0/admin/initGames', methods=['GET'])
+def initGames():
+    tmgr = ToolManager()
+    logger.info("UserServices::cleanBet")
+    tmgr.cleanBet()
+    logger.info("UserServices::initGames")
+    tmgr.initGames()
+    return jsonify({'initGames': "yes"})
 
 @users_page.route('/apiv1.0/users', methods=['GET'])
 def getusers():
@@ -88,7 +107,7 @@ def getuser(user_id):
         checkRight=False
         #first connection
         if user.nickName == "" and user.description == "":
-            logger.info("nickName &nd descrption are None - First subscription")
+            logger.info("nickName and descrption are None - First subscription")
             checkRight=True
         else:
             if "cookieUserKey" in session:
@@ -101,16 +120,18 @@ def getuser(user_id):
                     if (userFromCookie.isAdmin):
                         checkRight=True
         if (checkRight):
+            user.validated=True
             if "pwd" in userFromClient:
                 logger.info("pwd set")
+                logger.info(userFromClient)
                 mgr.saveUser(user.email, userFromClient["nickName"],
                             userFromClient["description"], user.user_id, user.validated,
-                            userFromClient["pwd"])
+                            userFromClient["pwd"], userFromClient["country"])
             else:
                 logger.info("thepwd NOT set")
                 mgr.saveUser(user.email, userFromClient["nickName"],
                     userFromClient["description"], user.user_id, user.validated,
-                    "")
+                    "", userFromClient["country"])
 
             return jsonify({'user': request.json["user"]})
         else:
@@ -143,7 +164,7 @@ def subscriptionPost():
         #ne email send because of SPAM wall
         uuid = str(uuid4())
         logger.info(u"subscriptionPost::new user:: new user_id will be  = {}".format(uuid))
-        mgr.saveUser(email, "", "", uuid, False, "")
+        mgr.saveUser(email, "", "", uuid, False, "", "")
         logger.info(u"\tsubscriptionPost::save done : return uuid={}".format(uuid))
         urlcallback = u"{}/users/{}/confirmation".format(url_root, uuid)
         logger.info(u"\tsubscriptionPost::urlcallback={}".format(urlcallback))
@@ -170,7 +191,7 @@ def confirmationSubscription(user_id):
     user = mgr.getUserByUserId(user_id)
     logger.info(u'confirmationSubscription::user={}'.format(user))
 
-    mgr.saveUser(user.email, user.nickName, user.description, user.user_id, True, "")
+    mgr.saveUser(user.email, user.nickName, user.description, user.user_id, True, "", user.country)
 
     
     tool_mgr = ToolManager()
@@ -300,6 +321,8 @@ class User:
         """
         if 'description' in elt.keys():
             self.description = elt['description']
+        if 'country' in elt.keys():
+            self.country = elt['country']
         if 'email' in elt.keys():
             self.email = elt['email']
         if 'nickName' in elt.keys():
@@ -322,6 +345,7 @@ class User:
         elt = dict()
         #elt['_id'] = self._id
         elt['description'] = self.description
+        elt['country'] = self.country
         elt['email'] = self.email
         elt['nickName'] = self.nickName
         elt['uuid'] = self.user_id
@@ -341,7 +365,7 @@ class UserManager(DbManager):
 
         """uuid, nickName, desc, avatar, email, isAdmin"""
 
-        sql_all_tab="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated
+        sql_all_tab="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated, country
                         FROM BETUSER order by nickName COLLATE NOCASE ASC;"""
         #localdb.row_factory = self.dict_factory
         logger.info(u'getAllUsers::row_factory={}'.format(localdb.row_factory))
@@ -363,9 +387,10 @@ class UserManager(DbManager):
     def hash_password(self,password):
         # uuid is used to generate a random number
         salt = uuid4().hex
+        logger.info(u'hash_password salt ={}'.format(salt ))
         return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
 
-    def saveUser(self, email, nickName, description, user_id, validated, pwd):
+    def saveUser(self, email, nickName, description, user_id, validated, pwd, country):
         """ save a user"""
         localdb = self.getDb()
         usr = self.getUserByUserId(user_id)
@@ -373,9 +398,11 @@ class UserManager(DbManager):
         try:            
             c = localdb.cursor()
             if (usr is None):
+                logger.info(u'Init user without pwd email={}'.format(email ))
                 usr=User()
                 usr.email=email
                 usr.description=description
+                usr.country=country
                 usr.nickName=nickName
                 usr.validated=validated        
                 usr.user_id=user_id                
@@ -389,16 +416,17 @@ class UserManager(DbManager):
                 logger.info(u'\t try update to user : {} '.format(usr.user_id))
                 usr.email=email
                 usr.description=description
+                usr.country=country
                 usr.nickName=nickName
                 usr.validated=validated        
                 if (pwd != ""):
                     c.execute("""update BETUSER 
-                    set nickName=?, email=?,description=?, validated=?, hashedpwd=?
+                    set nickName=?, email=?,description=?, validated=?, hashedpwd=?, country=?
                     where
-                    uuid=?""", (nickName, email, description, validated, self.hash_password(pwd), user_id))            
+                    uuid=?""", (nickName, email, description, validated, self.hash_password(pwd), country, user_id))            
                 else:
                     c.execute("""update BETUSER 
-                    set nickName=?, email=?,description=?, validated=?
+                    set nickName=?, email=?,description=?, validated=?, country=?
                     where
                     uuid=?""", (nickName, email, description, validated, user_id))            
             
@@ -419,7 +447,7 @@ class UserManager(DbManager):
         localdb = self.getDb()
         logger.info(u'getUserByEmail::email={}'.format(email))
 
-        sql="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated, hashedpwd
+        sql="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated, hashedpwd, country
                         FROM BETUSER where email='{}' ;"""
         cur = localdb.cursor()        
         cur.execute(sql.format(email))
@@ -438,7 +466,7 @@ class UserManager(DbManager):
         localdb = self.getDb()
         logger.info(u'getUserByUserId::user_id={}'.format(user_id))
 
-        sql="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated, hashedpwd
+        sql="""SELECT uuid, nickName, description, avatar, email, isAdmin, validated, hashedpwd, country
                         FROM BETUSER where uuid='{}' ;"""
         cur = localdb.cursor()        
         cur.execute(sql.format(user_id))
@@ -460,7 +488,7 @@ class UserManager(DbManager):
     def authenticate(self, email, pwd):
         """ authenticate user and retrieve it if ok"""
         localdb = self.getDb()
-        logger.info(u'authenticate::email={}/pwd={}'.format(email, pwd))
+        logger.info(u'authenticate::email={} / pwd={}'.format(email, pwd))
 
         user = self.getUserByEmail(email)
         #logger.info(u'authenticate::bsonUser={}'.format(bsonUser))

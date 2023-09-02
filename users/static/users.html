@@ -29,7 +29,8 @@
                     <thead>
                         <tr>
                             <th class="nickName">Nickname</th>
-                            <th class="description">Country</th>
+                            <th class="description">Description</th>
+                            <th class="country">Country</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -38,8 +39,11 @@
                             <td data-title="Nickname">
                                 {{ user.nickName }}
                             </td>
-                            <td data-title="Country">
+                            <td data-title="Description">
                                 {{ user.description }}&nbsp;
+                            </td>
+                            <td data-title="Country">
+                                {{ user.country }}&nbsp;
                             </td>
                             <td>
                                 <span ng-show="canUpdate(user.uuid)"><a class="btn btn-default" href="#!/user_detail/{{user.uuid}}">
