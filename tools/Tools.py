@@ -29,7 +29,7 @@ class DbManager:
     def __init__(self):
         #self.DATE_FORMAT = '%d/%m/%Y %H:%M:%S'
         self.DATE_FORMAT = '%Y/%m/%d %H:%M:%S'
-        con = sqlite3.connect('../bet.db')
+        con = sqlite3.connect('bet.db')
         self.db = con
         self.db.row_factory = self.dict_factory
         logger.debug(u'getDb::row_factory={}'.format(self.db.row_factory))
@@ -58,7 +58,7 @@ class DbManager:
         :return: connection to sqllite
         """
         if (self.db is None):
-            con = sqlite3.connect('../bet.db')
+            con = sqlite3.connect('bet.db')
             self.db = con
             self.db.row_factory = self.dict_factory
             logger.info(u'getDb::db={}'.format(self.db))
