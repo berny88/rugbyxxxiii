@@ -205,7 +205,7 @@ def subscriptionPost():
     else:
         logger.info("subscriptionPost::Email {} already created : {}-validated={}".format(email, user.user_id, user.validated))
         tool_mgr = ToolManager()
-        urlcallback = u"{}/users/{}/confirmation".format(url_root, user.user_id)
+        urlcallback = u"/#!/signin"
         return redirect("{}".format(urlcallback))  
           
 @users_page.route('/<user_id>/confirmation', methods=['GET'])
