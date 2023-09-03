@@ -189,7 +189,7 @@ def subscriptionPost():
     user = mgr.getUserByEmail(email)
     tool_mgr = ToolManager()
 
-    #url_root = tool_mgr.getProperty("url_root")["value"]
+    #url_root = tool_mgr.getProperty("url_root")["value"] 
     url_root=""
     if user is None:
         logger.info("subscriptionPost::Email {} unknown - user to be created".format(email))
