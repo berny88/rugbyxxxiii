@@ -171,6 +171,8 @@ def getuser(user_id):
             return "Ha ha ha ! Mais t'es pas la bonne personne pour faire ça, mon loulou", 403
     else:
         #= GET
+        #set as blank pwd to force user to update it
+        user.pwd=""
         logger.info("getuser::uuid={} - user={}".format(user_id, user))
         return jsonify({'user': user.__dict__})
 
