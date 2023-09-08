@@ -28,9 +28,9 @@ betApp.config(function($routeProvider) {
 
 		.when('/bets', { templateUrl:'bets/static/bets.html', controller:'BetsCtrl' })
 
-        // route for matchs page: "static page"
-        .when('/matchs', { templateUrl:'matchs/static/calendrier.html', controller:'matchsCtrl' })
-        .when('/admin_matchs', { templateUrl:'matchs/static/admin_matchs.html', controller:'matchsCtrl' })
+        // route for games page: "static page"
+        .when('/games', { templateUrl:'games/static/games.html', controller:'gamesCtrl' })
+        .when('/admin_games', { templateUrl:'games/static/admin_games.html', controller:'gamesCtrl' })
 
         // route for stats: "buble graph" & ranking
         .when('/stats_ranking', { templateUrl:'stats/static/stats_ranking.html', controller:'statsRankingCtrl' })

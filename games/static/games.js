@@ -1,56 +1,56 @@
-betApp.controller('matchsCtrl', ['$scope', '$http', '$q', '$timeout', '$window', function ($scope, $http, $q, $timeout, $window) {
+betApp.controller('gamesCtrl', ['$scope', '$http', '$q', '$timeout', '$window', function ($scope, $http, $q, $timeout, $window) {
 
         var canceler = $q.defer();
 
-        $scope.getMatchs = function() {
-            $http.get('matchs/apiv1.0/matchs', {timeout: canceler.promise})
+        $scope.getGames = function() {
+            $http.get('games/apiv1.0/gameslist', {timeout: canceler.promise})
             .then(function(answer) {
                 //ng-repeat :
-                $scope.matchs = answer.data.matchs;
+                $scope.games = answer.data.games;
                 $scope.displaySaveButton = false;
                 if (isConnected($window)) {
                     $scope.displaySaveButton = true;
                 }
             });
             $scope.displayBlogPostSaveButton = false;
-            console.log("getMatchs::isConnected($window)="+isConnected($window));
+            console.log("getGames::isConnected($window)="+isConnected($window));
             if (isAdmin($window)) {
                 $scope.displayBlogPostSaveButton =true;
             }
         }
 
-        $scope.getMatchsOfTheDay = function() {
-            $http.get('matchs/apiv1.0/matchs', {timeout: canceler.promise})
+        $scope.getGamesOfTheDay = function() {
+            $http.get('games/apiv1.0/games', {timeout: canceler.promise})
             .then(function(answer) {
 
-                $scope.allMatchs = answer.data.matchs;
-                $scope.matchs = [];
+                $scope.allGames = answer.data.games;
+                $scope.games = [];
                 var now = new Date();
-                $scope.displayMatchsOfTheDay = false;
+                $scope.displayGamesOfTheDay = false;
 
-                $scope.allMatchs.forEach(function(match) {
-                        var matchDate = new Date(match.dateMatch);
+                $scope.allGames.forEach(function(game) {
+                        var gameDate = new Date(game.dateMatch);
                         //var matchDate = Date.parse(match.dateMatch)
                         //var timeDiff = Math.abs(matchDate - now.getTime());
                         //if (Math.ceil(timeDiff / (1000 * 3600 * 24)) == 1) {
-                        if (((matchDate.getDate() - now.getDate()) == 0)
-                            && ((matchDate.getMonth() - now.getMonth()) == 0)
-                            && ((matchDate.getYear() - now.getYear()) == 0)) {
-                            $scope.matchs.push(match)
-                            $scope.displayMatchsOfTheDay = true;
+                        if (((gameDate.getDate() - now.getDate()) == 0)
+                            && ((gameDate.getMonth() - now.getMonth()) == 0)
+                            && ((gameDate.getYear() - now.getYear()) == 0)) {
+                            $scope.games.push(game)
+                            $scope.displayGamesOfTheDay = true;
                         }
                 })
             });
         }
 
-        $scope.saveMatchs = function() {
+        $scope.saveGames = function() {
             $('#pleaseWaitDialog').modal('show');
-            console.log("getMatchs::$scope.no_save="+$scope.no_save);
-            $http.put('matchs/apiv1.0/matchs', {matchs: $scope.matchs, no_save: $scope.no_save, timeout: canceler.promise})
+            console.log("saveGames::$scope.no_save="+$scope.no_save);
+            $http.put('games/apiv1.0/games', {games: $scope.games, no_save: $scope.no_save, timeout: canceler.promise})
             .then(function(data, status, headers, config) {
                 //showAlertSuccess("Paris sauvegardés !");
                 $('#pleaseWaitDialog').modal('hide');
-                $.notify("Matchs sauvegardés !" , "success");
+                $.notify("games saved !" , "success");
             },
             function(data, status, headers, config) {
                 $('#pleaseWaitDialog').modal('hide');
@@ -59,7 +59,7 @@ betApp.controller('matchsCtrl', ['$scope', '$http', '$q', '$timeout', '$window',
                 } else if (status==403){
                     showAlertError("Même pas en rêve ! status=" + status+ " " + data);
                 } else {
-                    showAlertError("Erreur lors de la mise à jour des matchs ; erreur HTTP : " + status);
+                    showAlertError("Erreur lors de la mise à jour des games ; erreur HTTP : " + status);
                 }
             })
         }
@@ -91,17 +91,17 @@ betApp.controller('matchsCtrl', ['$scope', '$http', '$q', '$timeout', '$window',
         $scope.currentDateForAvoidTheCache = d.getTime();
 
         $scope.getEmails = function() {
-            $http.get('/users/apiv1.0/users?validated=true', {timeout: canceler.promise})
+            $http.get('/users/apiv1.0/users_for_admin?validated=true', {timeout: canceler.promise})
             .then(function(answer) {
                 $scope.users = answer.data.users;
 
                 tabEmails = [];
                 for (var index = 0; index < $scope.users.length; ++index) {
                     user = $scope.users[index];
+                    console.log("user=", user)
                     tabEmails.push(user.email);
                 }
                 $scope.listEmails = tabEmails.join(" ; ");
-
             });
         }
 

@@ -5,6 +5,8 @@ import math
 import sqlite3
 from tools.Tools import DbManager, ToolManager
 from users.UserServices import UserManager
+from bets.BetsTools import BetsManager
+from bets.BetsTools import Bet
 
 logger = logging.getLogger(__name__)
 
@@ -13,45 +15,45 @@ games_page = Blueprint('games_page', __name__,
 
 
 
-@games_page.route('/matchslist', methods=['GET'])
-def matchslist():
-    return games_page.send_static_file('matchs.html')
+@games_page.route('/games', methods=['GET'])
+def gameslist():
+    return games_page.send_static_file('games.html')
 
 
-@games_page.route('/apiv1.0/matchs', methods=['GET'])
-def getMatchs():
+@games_page.route('/apiv1.0/gameslist', methods=['GET'])
+def getGames():
     mgr = GamesManager()
-    matchs=mgr.getAllMatchs()
-    logger.info(">>{}".format(jsonify({'matchs': matchs}).data))
+    games=mgr.getAllGames()
+    logger.info(">>{}".format(jsonify({'games': games}).data))
 
-    return jsonify({'matchs': matchs})
+    return jsonify({'games': games})
 
-@games_page.route('/apiv1.0/matchs', methods=['PUT'])
-def updateMatchsResults():
+@games_page.route('/apiv1.0/games', methods=['PUT'])
+def updateGamesResults():
     u"""
-    save the result of matchs.
+    save the result of games.
     only allowed to admin
-    :return the numbers of matchs updated
+    :return the numbers of games updated
     """
-    logger.info("updateMatchsResults::{}".format(request.json["matchs"]))
+    logger.info("updateGamesResults::{}".format(request.json["games"]))
     if "no_save" in request.json:
         no_save=request.json["no_save"]
     else:
         no_save=False
-    logger.info("updateMatchsResults::no_save={}".format(no_save))
+    logger.info("updateGamesResults::no_save={}".format(no_save))
     if "cookieUserKey" in session:
         mgr = GamesManager()
-        matchsjson = request.json["matchs"]
+        gamesjson = request.json["games"]
         cookieUserKey = session['cookieUserKey']
         user_mgr = UserManager()
         user = user_mgr.getUserByUserId(cookieUserKey)
-        logger.info(u"updateMatchsResults::cookieUserKey by ={}".format(cookieUserKey))
-        logger.info(u"updateMatchsResults::update by ={}".format(user.email))
+        logger.info(u"updateGamesResults::cookieUserKey by ={}".format(cookieUserKey))
+        logger.info(u"updateGamesResults::update by ={}".format(user.email))
         nbHit=0
         if user.isAdmin:
-            nbHit = mgr.update_all_matchs(matchsjson, no_save)
+            nbHit = mgr.update_all_games(gamesjson, no_save)
         else:
-            logger.info(u"updateMatchsResults::No Admin = 403")
+            logger.info(u"updateGamesResults::No Admin = 403")
             return "Ha ha ha ! Mais t'es pas la bonne personne pour faire ça, mon loulou", 403
         return jsonify({'nbHit': nbHit})
     else:
@@ -146,8 +148,8 @@ class Match:
     #    NB_POINT_DIFF=int(str_nb)
 
         #change nbpoints only if rightmatch
-        logger.info(u'\tMatchs::computeResult={}'.format(self.key, bet.key))
-        if (self.key==bet.key):
+        logger.info(u'\Game::computeResult=game key={}/bet key={}'.format(self.key, bet.game_id))
+        if (self.key==bet.game_id):
             if (bet.resultA!="") and (bet.resultB!="") and (self.resultA!="") and (self.resultB!="") and  (bet.resultA is not None) and (bet.resultB is not None) and (self.resultA is not None) and (self.resultB is not None):
                 logger.info(u'\t\tMatchs::computeResult=bet.resA={} - self.resA={}'.format(bet.resultA,self.resultA))
                 logger.info(u'\t\tMatchs::computeResult=bet.resA={} - self.resA={}'.format(bet.resultB,self.resultB))
@@ -164,13 +166,17 @@ class Match:
                     ((self.resultA - self.resultB) < 0 and (bet.resultA - bet.resultB) < 0) or
                     ((self.resultA - self.resultB) == 0 and (bet.resultA - bet.resultB) == 0)):
                     nb_point = nb_point+NB_POINT_WINNER
-                logger.info(u'\t\tMatchs::computeResult=nb_point={}'.format(nb_point))
+                #logger.info(u'\t\tMatchs::computeResult=nb_point={}'.format(nb_point))
         #finally we update nb of points
-        bet.nbpoints = nb_point
+        bet.nbPoints = nb_point
+        logger.info(u'\t\tMatchs::computeResult=nb_point={}'.format(bet.nbPoints))
 
 class GamesManager(DbManager):
 
     def getAllMatchs(self):
+        return self.getAllGames()
+
+    def getAllGames(self):
         """
         get the complete list of matchs
         """
@@ -195,53 +201,51 @@ class GamesManager(DbManager):
         return result
 
 
-    def update_all_matchs(self, matchs_to_update, no_save):
+    def update_all_games(self, games_to_update, no_save):
         #load all match from db (because we just want to update result
-        logger.info(u"update_all_matchs::start-games to update {}".format(matchs_to_update))
+        logger.info(u"update_all_games::start-games to update {}".format(games_to_update))
         nb_hits=0
-        #bet_mgr = BetsManager()
-        for m in matchs_to_update:
-            match = Match()
-            match.convertFromDict(m)
-            match_key=match.key
-            betList = bet_mgr.getBetsOfGame(match_key)
-            if not no_save:
-                # mettre à jour juste les resultats
-                logger.info(u'\tupdate_all_matchs::try update game :{}'.format(m))
-                try:
-                    localdb = self.getDb()
-                    c = localdb.cursor()
-                    c.execute("""update GAME 
-                                set resultA=?, resultB=?
-                                where
-                                key=?""", (match.resultA, match.resultB, match.key))  
-                    localdb.commit()
-                            
-                except sqlite3.Error as e:
-                    logger.error(e)
-                    logger.info(u'\tid : {}'.format(bet))
-                    localdb.rollback()
-                    logger.info(u'update_all_matchs::rollback')
-                nb_hits = nb_hits + 1
-            else:
-                logger.info("no match updated")
-            
+        bet_mgr = BetsManager()
+        for gameFromClient in games_to_update:
+            game = Match()
+            game.convertFromBson(gameFromClient)
+            game_key=game.key
+            logger.info(u'\tupdate_all_games::try update game : >>{}'.format(game_key))
+            betList = bet_mgr.getBetsOfGame(game_key)
+            # mettre à jour juste les resultats
+            logger.info(u'\tupdate_all_games::try update game :{}'.format(game))
+            try:
+                localdb = self.getDb()
+                c = localdb.cursor()
+                c.execute("""update GAME 
+                            set resultA=?, resultB=?
+                            where
+                            key=?""", (game.resultA, game.resultB, game.key))  
+                localdb.commit()
+                        
+            except sqlite3.Error as e:
+                logger.error(e)
+                logger.info(u'\tid : {}'.format(gameFromClient))
+                localdb.rollback()
+                logger.info(u'update_all_matchs::rollback')
+            nb_hits = nb_hits + 1
             # pour chaque match demander à betmanager de calculer le nb de points de chq bet
             # le principe sera de calculer le nbde pts d'un user = somme de ses paris
-            #for bet in betList:
-            #    match.computeResult(bet)
-            #    logger.info(
-            #        u'\t\tupdate_all_matchs::bet={}/{} - nbpts={}'.format(bet.game_id, bet.user_id, bet.nbPoints))
-            #    bet_mgr.saveScore(bet)
+            for bet in betList:
+                game.computeResult(bet)
+                logger.info(
+                    u'\t\tupdate_all_matchs::bet={}/{} - nbpts={}'.format(bet.game_id, bet.user_id, bet.nbPoints))
+                bet_mgr.saveScore(bet)
+         
 
 
         return None
 
 
-    def format_bet(self, bet, match):
+    def format_bet(self, bet, game):
         result = u"<tr>"
-        result = result + u"<td>" + match.key+"</td><td>"+match.teamA+"</td><td>"+match.teamB+"</td>"
-        result = result + u"<td>" + str(match.resultA)+"</td><td>"+str(match.resultB)+"</td><td>&nbsp;&nbsp;</td>"
+        result = result + u"<td>" + game.key+"</td><td>"+game.teamA+"</td><td>"+game.teamB+"</td>"
+        result = result + u"<td>" + str(game.resultA)+"</td><td>"+str(game.resultB)+"</td><td>&nbsp;&nbsp;</td>"
         result = result + u"<td>" + bet.key+"</td><td>"+bet.com_id+"</td><td>"+bet.user_id+"</td>"
         result = result + u"<td>" + str(bet.resultA)+"</td><td>"+ str(bet.resultB)+"</td><td>"+str(bet.nbpoints) + u"<td>"
         result = result + u"</tr>"

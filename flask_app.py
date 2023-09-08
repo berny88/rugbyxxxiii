@@ -8,6 +8,7 @@ from tools.Tools import ToolManager, tools_page
 from users.UserServices import users_page
 from bets.BetsServices import bets_page
 from games.GameServices import games_page
+from stats.StatsServices import stats_page
 
 app = Flask(__name__)
 
@@ -17,6 +18,7 @@ app.register_blueprint(tools_page, url_prefix="/tools", template_folder='templat
 app.register_blueprint(users_page, url_prefix="/users", template_folder='templates')
 app.register_blueprint(bets_page, url_prefix="/bets", template_folder='templates')
 app.register_blueprint(games_page, url_prefix="/games", template_folder='templates')
+app.register_blueprint(stats_page, url_prefix="/stats", template_folder='templates')
 
 print(sys.path)
 app.logger.warning('Started')

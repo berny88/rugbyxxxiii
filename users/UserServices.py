@@ -96,16 +96,14 @@ def getusers():
     users = mgr.getAllUsers(filterValidated)
     for u in users:
         u["email"]=""
-        
 
     logger.info("getusers::users={}".format(users))
     return jsonify({'users': users})
 
-@users_page.route('/apiv1.0/users/admin', methods=['GET'])
+@users_page.route('/apiv1.0/users_for_admin', methods=['GET'])
 def getUsersForAdmin():
     u"""
     return the complete list of users sorted by nickName and eventually filtered by 'validated'
-    without transfered the uuid + email
     :return: collection of users in jso format
     """
     filterValidated=request.args.get('validated')

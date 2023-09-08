@@ -6,9 +6,7 @@ from flask import Blueprint, jsonify, request, session
 
 from tools.Tools import DbManager
 
-from bets.BetsServices import BetsManager
-
-from communities.CommunityServices import CommunityManager
+from bets.BetsTools import BetsManager
 
 from users.UserServices import UserManager
 
@@ -55,13 +53,11 @@ def ranking():
     u"""
     :return la représentation json du classement général
     :param filter: the phasis we want the ranking for (ALL, GROUPE or FINAL)
-    :param requester: COMMUNITIES_RANKING when the requester is the ranking of the communities
     """
     filter=request.args.get('filter')
-    requester=request.args.get('requester')
     betsMgr = BetsManager()
     d = dict()
-    rankings = betsMgr.getRanking(None,filter,requester)
+    rankings = betsMgr.getRankings(filter)
     d["rankings"]=rankings
     return jsonify({'data': d})
 

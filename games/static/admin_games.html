@@ -20,8 +20,8 @@
     <div class="container">
 
         <div class="row-fluid" >
-            <h1>Administration des matchs ... et bien plus encore ! </h1>
-            <h2>(de grands pouvoirs impliquent de grandes responsabilités)</h2>
+            <h1>Game administration ! </h1>
+            <h2>(With great power comes great responsibility)</h2>
             <br/>
         </div>
 
@@ -38,7 +38,7 @@
                     <div ng-show="!displaySaveButton">
                         <h4 class="text-center">Vous devez être connectés pour enregistrer l'historique des classements (mais attention, t'as
                             interêt à être habilité loulou !). Par
-                            <a href="/#!/signin?callback=admin_matchs">ici</a>.</h4>
+                            <a href="/#!/signin?callback=admin_games">ici</a>.</h4>
                     </div>
                     <div ng-show="displaySaveButton">
                         <button type="button" class="btn btn-success glyphicon glyphicon-save"
@@ -55,22 +55,22 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <h4>Enregistrement des scores des matchs</h4>
+                        <h4>save results of  games</h4>
                         <div class="clearfix"></div>
                     </h4>
                 </div>
                 <div class="panel-body">
-                    <form ng-submit="saveMatchs()">
+                    <form ng-submit="saveGames()">
                         <div id="no-more-tables" class="table-responsive">
 
                             <div ng-show="!displaySaveButton">
                                 <h4 class="text-center">Vous devez être connectés pour sauvegarder le résultat des matchs (mais attention, t'as
                                     interêt à être habilité loulou !). Par
-                                    <a href="/#!/signin?callback=admin_matchs">ici</a>.</h4>
+                                    <a href="/#!/signin?callback=admin_games">ici</a>.</h4>
                             </div>
-                            <input type="submit" ng-show="displaySaveButton" class="btn btn-success pull-right" value="Sauvegarder les Matchs"/>
+                            <input type="submit" ng-show="displaySaveButton" class="btn btn-success pull-right" value="Save games"/>
                             <label>
-                                <input type="checkbox" ng-show="displaySaveButton" ng-model="no_save"> Calcul des points sans sauvegarde (juste email)
+                                <input type="checkbox" ng-show="displaySaveButton" ng-model="no_save"> Compute points
                             </label>
                             <table class="table table-condensed table-striped">
                                 <thead>
@@ -101,20 +101,20 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody ng-init="getMatchs();">
-                                    <tr ng-class="{ 'danger' : (match.resultA==null || match.resultB==null)}" ng-repeat="match in matchs | filter : match_filter | orderBy:sortType:sortReverse">
-                                        <td data-title="Date">{{match.dateMatch | date:'dd/MM/yy HH:mm'}}</td>
-                                        <td data-title="Groupe">{{match.categoryName}}</td>
-                                        <td data-title="TeamA"><span class="newflags {{match.teamA}}"></span> {{match.libteamA}}</td>
+                                <tbody ng-init="getGames();">
+                                    <tr ng-class="{ 'danger' : (game.resultA==null || game.resultB==null)}" ng-repeat="game in games | filter : game_filter | orderBy:sortType:sortReverse">
+                                        <td data-title="Date">{{game.dateMatch | date:'dd/MM/yy HH:mm'}}</td>
+                                        <td data-title="Groupe">{{game.categoryName}}</td>
+                                        <td data-title="TeamA"><span class="newflags {{game.teamA}}"></span> {{game.libteamA}}</td>
                                         <td data-title="resultA">
-                                            <input class="form-control" ng-model="match.resultA"
-                                                   value="{{match.resultA}}" type="number" min="0" max="99">
+                                            <input class="form-control" ng-model="game.resultA"
+                                                   value="{{game.resultA}}" type="number" min="0" max="99">
                                         </td>
                                         <td data-title="resultB">
-                                            <input class="form-control" ng-model="match.resultB"
-                                                   value="{{match.resultB}}" type="number" min="0" max="99">
+                                            <input class="form-control" ng-model="game.resultB"
+                                                   value="{{game.resultB}}" type="number" min="0" max="99">
                                         </td>
-                                        <td data-title="TeamB"><span class="newflags {{match.teamB}}"></span> {{match.libteamB}}</td>
+                                        <td data-title="TeamB"><span class="newflags {{game.teamB}}"></span> {{game.libteamB}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -137,7 +137,7 @@
                     <div ng-show="!displaySaveButton">
                         <h4 class="text-center">Vous devez être connectés pour consulter les @mails (mais attention, t'as
                             interêt à être habilité loulou !). Par
-                            <a href="/#!/signin?callback=admin_matchs">ici</a>.</h4>
+                            <a href="/#!/signin?callback=admin_game">ici</a>.</h4>
                     </div>
 
                     <div ng-show="displaySaveButton">
@@ -151,7 +151,6 @@
                             <table class="table table-condensed table-striped">
                                 <thead>
                                     <tr>
-                                        <th class="avatar">Avatar</th>
                                         <th class="nickName">
                                             <a ng-click="sortType='nickName';sortReverse=!sortReverse">NickName
                                                 <span ng-show="sortType=='nickName'&&!sortReverse" class="glyphicon glyphicon-chevron-down"></span>
@@ -166,9 +165,6 @@
                                 </thead>
                                 <tbody ng-init="getEmails();">
                                     <tr ng-repeat="user in users | orderBy:sortType:sortReverse">
-                                        <td data-title="Avatar">
-                                            <img height="32px" width="32px" class="img-focus-avatar img-circle" ng-src ="users/apiv1.0/users/{{ user.user_id }}/avatar?{{ currentDateForAvoidTheCache }}">
-                                        </td>
                                         <td data-title="NickName">{{user.nickName}}</td>
                                         <td data-title="e-Mail">{{user.email}}</td>
                                     </tr>
@@ -184,4 +180,4 @@
     </div>
 </div>
 
-<div ng-include src="'static/js/piwik.js'"></div>
+<!--div ng-include src="'static/js/piwik.js'"></div-->
