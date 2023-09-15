@@ -116,4 +116,35 @@ betApp.controller('BetsCtrl', ['$scope', '$routeParams', '$http', '$q', '$locati
             canceler.resolve();
         });
 
+        $scope.getBetsUsers = function() {
+            
+            $scope.bets = {};
+            $scope.displaySaveButton = false;
+
+            hideAlerts();
+
+            $('#spin_bets_groupe').show();
+            $('#spin_bets_final').show();
+            console.log("getBetsUsers");
+
+            if (isConnected($window)) {
+                $http.get('bets/apiv1.0/bets_users', {timeout: canceler.promise})
+                .then(function(answer, status, headers, config) {
+                    $scope.betsUsers = answer.data.betsUsers;
+                    console.log("getBetsUsers::betsUsers=", $scope.betsUsers);
+                },
+                function(data, status, headers, config) {
+                    if (status==-1) {
+                        //do nothing
+                    }else {
+                        showAlertError("Erreur lors de la récupération de la liste des paris ; erreur HTTP : " + status);
+                    }
+                    $('#spin_bets_groupe').hide();
+                    $('#spin_bets_final').hide();
+                    
+                });
+            }
+
+        }
+
 }]);

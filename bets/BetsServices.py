@@ -74,3 +74,16 @@ def getRatesOfAMatch(key):
     logger.info(">>{}".format(jsonify({'rates': rates}).data))
     return jsonify({'rates': rates})
 
+@bets_page.route('/apiv1.0/bets_users', methods=['GET'])
+def getBetsUsers():
+    u"""
+    return the list of all bets of all user.
+    :return:  a json form for the list of bet
+    """
+    betsMgr = BetsManager()
+    betsUsers = betsMgr.getBetsUsers()
+
+    logger.debug(u" ------------ ")
+    logger.info(u"getBetsUsers::betsUsers={}".format(betsUsers))
+    return jsonify({'betsUsers': betsUsers})
+

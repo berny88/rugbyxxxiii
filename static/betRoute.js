@@ -27,6 +27,7 @@ betApp.config(function($routeProvider) {
         .when('/logout', { templateUrl:'users/static/logout.html', controller:'LogoutCtrl' })
 
 		.when('/bets', { templateUrl:'bets/static/bets.html', controller:'BetsCtrl' })
+		.when('/bets_users', { templateUrl:'bets/static/bets_users.html', controller:'BetsCtrl' })
 
         // route for games page: "static page"
         .when('/games', { templateUrl:'games/static/games.html', controller:'gamesCtrl' })

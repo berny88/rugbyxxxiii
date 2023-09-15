@@ -69,6 +69,27 @@ class Bet(BetProjectClass):
                 elt[k] = self.__dict__[k]
         return elt
 
+class BetUser(BetProjectClass):
+    
+    def __init__(self):
+        self.betA = 0
+        self.betB = 0
+        self.resultA = u""
+        self.resultB = u""
+        self.nickName = u""
+        self.game_date = u""
+        self.game_id = u""
+        self.teamA = u""
+        self.teamB = u""
+        self.nbpoints = 0
+
+    def serialize(self):
+        elt = dict()
+        for k in self.__dict__:
+            elt[k] = self.__dict__[k]
+        return elt   
+    
+
 
 class BetsManager(DbManager):
     def getBetsOfUser(self, user_id, game_list):
@@ -361,5 +382,42 @@ class BetsManager(DbManager):
             i=i+1
         return result
 
+    def getBetsUsers(self):
+        localdb = self.getDb()
+        result = list()
+        # get all bets+games+user attrb
+        sql_bets_all_user="""
+            SELECT g.date, nickName,nbPoints, FK_GAME, b.resultA as betA, 
+            b.resultB as betB, g.resultA, g.resultB, g.libteamA, g.libteamB
+            from BETUSER u, BET b, GAME g
+            where b.fk_user=u.uuid
+            and g.key=FK_GAME
+            --and nickName='Fb88'
+            and g.resultA is not null
+            order by g.date, nbpoints desc , nickName;"""
+        cur = localdb.cursor()
+        #logger.info("getBetsOfGame::sql_bets_by_user= {}".format( sql_bets_by_user ))
+        cur.execute(sql_bets_all_user, {})
+        rows = cur.fetchall()
+        logger.info("getBetsUsers::rowcount={}".format( len(rows) ))
+
+        for row in rows:
+            # betuser = BetUser()
+            # betuser.nickName=row["nickName"]
+            # betuser.game_id=row["FK_GAME"]
+            # betuser.game_date=datetime.strptime(row["date"], self.DATE_FORMAT)
+            # betuser.betA=row["betA"]
+            # betuser.betB=row["betB"]
+            # betuser.libteamA = row["libteamA"]
+            # betuser.libteamB = row["libteamB"]
+            # betuser.resultA = row["resultA"]
+            # betuser.resultB = row["resultB"]
+            # betuser.nbpoints = row["nbPoints"]
+            
+            logger.info("getBetsOfGame::bet={}".format(row))
+            result.append(row)
+
+        
+        return result
 
 
