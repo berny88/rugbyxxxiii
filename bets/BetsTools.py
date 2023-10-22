@@ -373,7 +373,7 @@ class BetsManager(DbManager):
                         sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
                             from BETUSER u, BET b
                             where u.uuid=b.FK_USER
-                            and b.FK_GAME not like '{}%'
+                            and b.FK_GAME not like 'Pool%'
                             group by nickName
                             order by 3 desc;"""
         else:
