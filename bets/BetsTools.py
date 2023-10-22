@@ -362,13 +362,21 @@ class BetsManager(DbManager):
         localdb = self.getDb()
 
         """uuid, nickName, desc, avatar, email, isAdmin"""
-
-        sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
+        if phase == 'Pool':
+            sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
                             from BETUSER u, BET b
                             where u.uuid=b.FK_USER
                             and b.FK_GAME like '{}%'
                             group by nickName
                             order by 3 desc;"""
+        else:
+                        sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
+                            from BETUSER u, BET b
+                            where u.uuid=b.FK_USER
+                            and b.FK_GAME not like '{}%'
+                            group by nickName
+                            order by 3 desc;"""
+
         cur = localdb.cursor()
         cur.execute(sql_global_ranking.format(phase))
         logger.info("BetsManager::getRankings phase phase={} / sql={}".format(phase, sql_global_ranking.format(phase)))
