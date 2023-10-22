@@ -369,11 +369,17 @@ class BetsManager(DbManager):
                             and b.FK_GAME like '{}%'
                             group by nickName
                             order by 3 desc;"""
-        else:
+        elif phase=='Q':
                         sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
                             from BETUSER u, BET b
                             where u.uuid=b.FK_USER
                             and b.FK_GAME not like '{}%'
+                            group by nickName
+                            order by 3 desc;"""
+        else:
+            sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
+                            from BETUSER u, BET b
+                            where u.uuid=b.FK_USER
                             group by nickName
                             order by 3 desc;"""
 
