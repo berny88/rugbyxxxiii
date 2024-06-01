@@ -1,7 +1,7 @@
 # Generic simple bet web site
 small web bet site in python
 
-From Pythoneverywhere
+## From Pythoneverywhere
 
 To initialize git env
 
@@ -23,3 +23,9 @@ git pull
 Forcer theBerny isAdmin : no secu
 users/apiv1.0/admin/forceTheBerny
 
+## run from your PC
+go to your source directory (cd xxxxx)
+
+set FLASK_APP=flask_app
+
+flask run
