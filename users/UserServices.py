@@ -31,17 +31,23 @@ def getInitDB():
     tmgr.createDb()
     return jsonify({'DBcreated': "yes"})
 
-@users_page.route('/apiv1.0/admin/forceTheBerny', methods=['GET'])
-def forceTheBerny():
+@users_page.route('/apiv1.0/admin/forceTheBerny/<uuid>', methods=['GET'])
+def forceTheBerny(uuid):
     user_mgr = UserManager()
-    user = user_mgr.getUserByEmail("bernard.bougeon@gmail.com")
-    if not user.isAdmin:
-        user.isAdmin=True
-        #no pwd update - juste force attrb admin
-        user_mgr.forceIsAdmin( user.user_id)
-        return jsonify({'forceTheBerny': "Done"})   
+    nbAdmin = user_mgr.checkOnlyOneAdmin()
+    user = user_mgr.getUserByUserId(uuid)
+    if user is not None:
+        if not user.isAdmin and nbAdmin != 0:
+            user.isAdmin=True
+            #no pwd update - juste force attrb admin
+            user_mgr.forceIsAdmin( user.user_id)
+            return jsonify({'forceTheBerny': "Done"})   
+        else:
+            return jsonify({'forceTheBerny': "There is alreay an Admin ; There can be only one !"})   
     else:
-        return jsonify({'forceTheBerny': "Alreay Admin"})   
+        return jsonify({'forceTheBerny': "who are you M**F** ?!"})   
+
+
 
 @users_page.route('/apiv1.0/admin/cleanDB', methods=['GET'])
 def cleanDB():
@@ -521,6 +527,20 @@ class UserManager(DbManager):
             return user
         else:
             return None
+
+    def checkOnlyOneAdmin(self):
+        """ check if there is only one admin"""
+        localdb = self.getDb()
+        logger.info(u'checkOnlyOneAdmin')
+
+        sql="""SELECT count(*) as nbAdmin FROM BETUSER where isAdmin='{}' ;"""
+        cur = localdb.cursor()        
+        cur.execute(sql.format(1))
+
+        row = cur.fetchone()
+        logger.info(u'checkOnlyOneAdmin:: nb of Admin = {}'.format(row))
+        return row["nbAdmin"]
+
 
     def getUserByUserId(self, user_id):
         """ get one user by userid"""

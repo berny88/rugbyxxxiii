@@ -293,6 +293,7 @@ class ToolManager(DbManager):
         for row in rows:
             logger.info(row)
 
+        #TODO : to remove param insert ?
         try:
             c = conn.cursor()
             uuid = str(uuid4())
@@ -304,8 +305,7 @@ class ToolManager(DbManager):
             conn.commit()
         except sqlite3.Error as e:
             print(e)
-        #self.initAdmin(conn)
-
+        
 
 
     def getProperties(self):
