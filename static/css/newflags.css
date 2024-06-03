@@ -367,7 +367,7 @@
 .newflags.RDC { background-position: -184px -160px;  }
 .newflags.RDO { background-position: -210px -160px;  }
 .newflags.ROU { background-position: -236px -160px;  }
-.newflags.TCQ { background-position: -262px -160px;  }
+.newflags.CZE { background-position: -262px -160px;  }
 .newflags.RUS { background-position: -288px -160px;  }
 .newflags.RWA { background-position: -314px -160px;  }
 .newflags.SAL { background-position: -340px -160px;  }
@@ -418,11 +418,12 @@
 .newflags.YEM { background-position: -28px -224px;  }
 .newflags.ZAM { background-position: -54px -224px;  }
 .newflags.ZIM { background-position: -80px -224px;  }
+.newflags.SCO { background-position: -130px -224px;  }
 
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5), 
 only screen and (min--moz-device-pixel-ratio: 1.5), 
 only screen and (min-resolution: 240dpi) {
 
-	.newflags {background-image: url(/static/img/newflags@2x.png);}
+	.newflags {background-image: url(/static/img/newflags.png);}
   	.newflags-mini {background-image: url(/static/img/newflags-mini-14@2x.png);}
 }

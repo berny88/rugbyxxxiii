@@ -37,13 +37,15 @@ def forceTheBerny(uuid):
     nbAdmin = user_mgr.checkOnlyOneAdmin()
     user = user_mgr.getUserByUserId(uuid)
     if user is not None:
-        if not user.isAdmin and nbAdmin != 0:
+        logger.info(u"forceTheBerny::user={}".format(user))
+        logger.info(u"forceTheBerny::nbAdmin={}".format(nbAdmin))
+        if nbAdmin == 0:
             user.isAdmin=True
             #no pwd update - juste force attrb admin
             user_mgr.forceIsAdmin( user.user_id)
             return jsonify({'forceTheBerny': "Done"})   
         else:
-            return jsonify({'forceTheBerny': "There is alreay an Admin ; There can be only one !"})   
+            return jsonify({'forceTheBerny': "There is already an Admin ; There can be only one !"})   
     else:
         return jsonify({'forceTheBerny': "who are you M**F** ?!"})   
 
