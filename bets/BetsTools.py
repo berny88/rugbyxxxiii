@@ -364,16 +364,18 @@ class BetsManager(DbManager):
         """uuid, nickName, desc, avatar, email, isAdmin"""
         if phase == 'Pool':
             sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
-                            from BETUSER u, BET b
+                            from BETUSER u, BET b, GAME g
                             where u.uuid=b.FK_USER
-                            and b.FK_GAME like '{}%'
+                            and b.FK_GAME = g.key
+                            and g.category like 'Pool%'
                             group by nickName
                             order by 3 desc;"""
         elif phase=='Q':
                         sql_global_ranking="""select u.uuid, u.nickName , sum(nbPoints) as cumul
-                            from BETUSER u, BET b
+                            from BETUSER u, BET b, GAME g
                             where u.uuid=b.FK_USER
-                            and b.FK_GAME not like 'Pool%'
+                            and b.FK_GAME = g.key
+                            and g.category not like 'Pool%'
                             group by nickName
                             order by 3 desc;"""
         else:
