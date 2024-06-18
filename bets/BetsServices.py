@@ -2,7 +2,7 @@
 import logging
 
 from datetime import datetime, timedelta
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request, session, Response
 from uuid import uuid4
 import sqlite3
 from games.GameServices import GamesManager
@@ -87,3 +87,24 @@ def getBetsUsers():
     logger.info(u"getBetsUsers::betsUsers={}".format(betsUsers))
     return jsonify({'betsUsers': betsUsers})
 
+@bets_page.route('/apiv1.0/bets_users_as_csv', methods=['GET'])
+def getBetsUsersAsCsv():
+    u"""
+    return the list of all bets of all user.
+    :return:  a json form for the list of bet
+    """
+    betsMgr = BetsManager()
+    betsUsers = betsMgr.getBetsUsers()
+
+    logger.debug(u" ------------ ")
+    logger.info(u"getBetsUsers::getBetsUsersAsCsv={}".format(betsUsers))
+
+    # Create a CSV string from the user data
+    csv_data = "date;teamA;resultA;teamB;resultB;nickName;teamA;teamB;nbpoints\n"
+    for user in betsUsers:
+        logger.info(f"{user}")
+        csv_data += f"{user['date']};{user['libteamA']};{user['resultA']};{user['libteamB']};{user['resultB']};{user['nickName']};{user['betA']};{user['betB']};{user['nbPoints']}\n"
+    response = Response(csv_data, content_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=users.csv"
+ 
+    return response
