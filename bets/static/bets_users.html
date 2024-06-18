@@ -5,14 +5,14 @@
             <a class="btn btn-success pull-right" href="bets/apiv1.0/bets_users_as_csv" target="_blank">Export</a>
         </div>
 
-        <div class="row-fluid" >
+        <!--div class="row-fluid" >
             <div class="input-group input-group-md col-md-6 col-md-offset-3 padding">
                 <span class="input-group-addon">
                     <i class="glyphicon glyphicon-filter"></i>
                 </span>
-                <input class="form-control" type="search" ng-model="user_filter">
+                <input class="form-control" type="search" ng-model="search">
             </div>
-        </div>
+        </div-->
 
         <br/>
 
@@ -22,20 +22,20 @@
                     <table class="table table-condensed table-striped">
                     <thead>
                         <tr>
-                            <th class="date">date</th>
-                            <th class="teamA">teamA</th>
+                            <th class="date"><input ng-model="search.date" size="20"/><br/>date</th>
+                            <th class="teamA"><input ng-model="search.libteamA" size="10"/><br/>teamA</th>
                             <th class="resultA">resultA</th>
-                            <th class="teamB">teamB</th>
+                            <th class="teamB"><input ng-model="search.libteamB" size="10"/><br/>teamB</th>
                             <th class="resultB">resultB</th>
-                            <th class="nickName">Nickname</th>
+                            <th class="nickName"><input ng-model="search.nickName"  size="5"/><br/>Nickname</th>
                             <th class="betA">betA</th>
                             <th class="betB">betB</th>
-                            <th class="nbPoints">nbPoints</th>
+                            <th class="nbPoints"><input ng-model="search.nbPoints" size="2"/><br/>nbPoints</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="betuser in betsUsers | filter : user_filter">
+                        <tr ng-repeat="betuser in betsUsers | filter : search">
                             <td data-title="date">{{ betuser.date }}                            </td>
                             <td data-title="teamA">{{ betuser.libteamA }}&nbsp;                            </td>
                             <td data-title="resultA">{{ betuser.resultA }}&nbsp;                            </td>
