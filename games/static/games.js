@@ -109,5 +109,43 @@ betApp.controller('gamesCtrl', ['$scope', '$http', '$q', '$timeout', '$window', 
             canceler.resolve();  // Aborts the $http request if it isn't finished.
         });
 
+        //******************************** */
+        //*************SQL  ****************/
+        $scope.initSql = function() {
+            if (isAdmin($window)) {
+                $scope.displaySql =true;
+            }else{
+                $scope.displaySql = false;
+            }
+        }
+
+        $scope.runSql = function() {
+            if (isAdmin($window)) {                
+                $('#pleaseWaitDialog').modal('show');
+                console.log("runSql="+$scope.sql1);
+                $http.put('games/apiv1.0/admin_sql', {sql: $scope.sql1})
+                .then(function(data, status, headers, config) {
+                    console.log(data);
+                    $('#pleaseWaitDialog').modal('hide');
+                    $.notify("Sql run !" , "success");
+                    $scope.resultSql =data.data.nbHit;
+                    
+                },
+                function(data, status, headers, config) {
+                    $('#pleaseWaitDialog').modal('hide');
+                    if (status==-1) {
+                        //do nothing
+                    } else if (status==403){
+                        showAlertError("Même pas en rêve ! status=" + status+ " " + data);
+                    } else {
+                        showAlertError("Error while sql run ; HTTP error: " + status);
+                    }
+                })
+                $scope.resultSql ="";
+            }else{
+                $scope.resultSql = "forbiden";
+            }
+        }
+
 
 }]);

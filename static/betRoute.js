@@ -32,6 +32,7 @@ betApp.config(function($routeProvider) {
         // route for games page: "static page"
         .when('/games', { templateUrl:'games/static/games.html', controller:'gamesCtrl' })
         .when('/admin_games', { templateUrl:'games/static/admin_games.html', controller:'gamesCtrl' })
+        .when('/sql', { templateUrl:'games/static/admin_sql.html', controller:'gamesCtrl' })
 
         // route for stats: "buble graph" & ranking
         .when('/stats_ranking', { templateUrl:'stats/static/stats_ranking.html', controller:'statsRankingCtrl' })

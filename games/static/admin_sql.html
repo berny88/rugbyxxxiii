@@ -1,0 +1,56 @@
+<!-- Modal -->
+<div class="modal fade" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>Processing...</h1>
+            </div>
+            <div class="modal-body">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                        <span class="sr-only">100% Complete (success)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="jumbotron" xmlns="http://www.w3.org/1999/html" ng-init="initSql()">
+    <div class="container">
+
+        <div class="row-fluid" >
+            <h1>Sql administration !</h1>
+            <h2>(With great power comes great responsibility)</h2>
+            <h2>useful to initialize games, update teams name in the knockout phase</h2>
+            <br/>
+        </div>
+
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div ng-show="!displaySql">
+                        <h4 class="text-center">Vous devez être connectés pour enregistrer l'historique des classements (mais attention, t'as
+                            interêt à être habilité loulou !). Par
+                            <a href="/#!/signin?callback=sql">ici</a>.</h4>
+                    </div>
+                    <div ng-show="displaySql">
+                        <button type="button" class="btn btn-danger glyphicon glyphicon-play"
+                                ng-click="runSql()"> Run sql statement
+                        </button><br/>
+                        <label for="sql1">Sql statement</label>
+                        <textarea  type="text" class="form-control" id="sql1" ng-model="sql1"
+                        aria-describedby="sqlHelp" placeholder="sql"></textarea>
+                        <small id="sqlHelp" class="form-text text-muted">
+                            put your sql statement with ";" separator</small>
+
+                    </div><br/>
+                    Result = {{resultSql}}
+                    <span style="visibility: hidden" id="spin_histo">   <img src="static/img/spin.gif"></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+

@@ -59,6 +59,33 @@ def updateGamesResults():
     else:
         return "Ha ha ha ! Mais t'es qui pour faire ça, mon loulou ?", 403
 
+@games_page.route('/apiv1.0/admin_sql', methods=['PUT'])
+def admin_sql():
+    u"""
+    Run sql statement .
+    only allowed to admin
+    :return the numbers of rows updated/deleted
+    """
+    if "cookieUserKey" in session:
+        mgr = GamesManager()
+        logger.info("admin_sql::{}".format(request.json["sql"]))
+        sql = request.json["sql"]
+        cookieUserKey = session['cookieUserKey']
+        user_mgr = UserManager()
+        user = user_mgr.getUserByUserId(cookieUserKey)
+        logger.info(u"updateGamesResults::cookieUserKey by ={}".format(cookieUserKey))
+        logger.info(u"updateGamesResults::update by ={}".format(user.email))
+        nbHit=0
+        if user.isAdmin:
+            nbHit = mgr.run_sql(sql)
+            logger.info(u"updateGamesResults::nbHit ={}".format(nbHit))
+        else:
+            logger.info(u"admin_sql::No Admin = 403")
+            return "Ha ha ha ! Mais t'es pas la bonne personne pour faire ça, mon loulou", 403
+        return jsonify({'nbHit': nbHit})
+    else:
+        return "Ha ha ha ! Mais t'es qui pour faire ça, mon loulou ?", 403
+
 
 u"""
 **************************************************
@@ -240,6 +267,25 @@ class GamesManager(DbManager):
 
 
         return None
+
+    def run_sql(self, sql):
+        logger.info(u"run_sql::run {}".format(sql))
+        nb_hits=None
+        try:
+            localdb = self.getDb()
+            c = localdb.cursor()
+            result = c.execute(sql)  
+            nb_hits=result.rowcount
+            localdb.commit()
+                        
+        except sqlite3.Error as e:
+                logger.error(e)
+                nb_hits=str(e)
+                logger.info(u'\tsql : {}'.format(sql))
+                localdb.rollback()
+                logger.info(u'run_sql::rollback')
+        return nb_hits
+    
 
 
     def format_bet(self, bet, game):
