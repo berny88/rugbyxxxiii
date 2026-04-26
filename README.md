@@ -26,7 +26,11 @@ users/apiv1.0/admin/forceTheBerny
 ## run from your PC
 go to your source directory (cd xxxxx)
 
-set FLASK_APP=flask_app
+cp .env.example .env
+pip install -r requirements.txt
+export FLASK_APP=flask_app
+flask run
+
 
 flask run
 
