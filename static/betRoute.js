@@ -5,10 +5,10 @@ betApp.config(function($routeProvider) {
     $routeProvider
 
         // route for index
-        .when('/home', { templateUrl:'static/home.html', controller:'indexCtrl' })
-        .when('/accueil2', { templateUrl:'static/accueil.html', controller:'UsersListCtrl' })
-        .when('/accueil3', { templateUrl:'static/accueil.html', controller:'UsersListCtrl' })
-        .when('/', { templateUrl:'static/home.html', controller:'UsersListCtrl' })
+        .when('/home', { templateUrl:'/home.html', controller:'indexCtrl' })
+        .when('/accueil2', { templateUrl:'/accueil.html', controller:'UsersListCtrl' })
+        .when('/accueil3', { templateUrl:'/accueil.html', controller:'UsersListCtrl' })
+        .when('/', { templateUrl:'/home.html', controller:'UsersListCtrl' })
 
         //subscription process
         // to subscribe to the site
@@ -40,23 +40,23 @@ betApp.config(function($routeProvider) {
         .when('/stats_historyranking', { templateUrl:'stats/static/stats_historyranking.html', controller:'statsRankingCtrl' })
 
         // route for tirage: "static page"
-        .when('/tirage', { templateUrl:'static/tirage.html', controller:'tirageCtrl' })
+        .when('/tirage', { templateUrl:'/tirage.html', controller:'tirageCtrl' })
 
         // route for calendrier: "static page"
-        .when('/calendrier', { templateUrl:'static/calendrier.html', controller:'calendrierCtrl' })
+        .when('/calendrier', { templateUrl:'/calendrier.html', controller:'calendrierCtrl' })
 
         // route for pictures and videos
-        .when('/entertainment', { templateUrl:'static/entertainment.html', controller:'indexCtrl' })
+        .when('/entertainment', { templateUrl:'/entertainment.html', controller:'indexCtrl' })
 
         // route for rules of games and bets : "static page"
-        .when('/rules', { templateUrl:'static/rules.html', controller:'indexCtrl' })
+        .when('/rules', { templateUrl:'/rules.html', controller:'indexCtrl' })
 
         // route for about page : "static page"
-        .when('/about', { templateUrl:'static/about.html', controller:'indexCtrl' })
+        .when('/about', { templateUrl:'/about.html', controller:'indexCtrl' })
 
         // route for about page : "static page"
-        .when('/contact', { templateUrl:'static/contact.html', controller:'indexCtrl' })
+        .when('/contact', { templateUrl:'/contact.html', controller:'indexCtrl' })
 
         // default
-        .otherwise({ templateUrl:'static/home.html', controller:'indexCtrl' });
+        .otherwise({ templateUrl:'/home.html', controller:'indexCtrl' });
 });
