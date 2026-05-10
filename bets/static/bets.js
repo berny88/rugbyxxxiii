@@ -146,5 +146,53 @@ betApp.controller('BetsCtrl', ['$scope', '$routeParams', '$http', '$q', '$locati
             }
 
         }
+        
+        /**
+         * Affiche une modal de confirmation Bootstrap
+         * et appelle ask_ai1() si l'utilisateur confirme
+         */
+        $scope.askAIWithConfirmation = function(agent_name){
+            console.log('Ask ' + agent_name + ' - Showing confirmation modal');
+            $('#confirmAsk'+agent_name+'Modal').modal('show');
+        }
 
+        /**
+         * Confirme l'action et génère les valeurs aléatoires
+         */
+        $scope.confirmAsk = function(agent_name){
+            $('#confirmAsk'+agent_name+'Modal').modal('hide');
+            $scope.ask_ai1();
+        }
+
+        /**
+         * Annule l'action
+         */
+        $scope.cancelAsk = function(agent_name){
+            $('#confirmAsk'+agent_name+'Modal').modal('hide');
+            console.log('Ask ' + agent_name + ' - Action cancelled');
+        }
+
+        /**
+         * Génère des valeurs aléatoires pour tous les champs de paris
+         * Remplit les champs resultA et resultB avec des nombres entre 0 et 5
+         */
+        $scope.ask_ai1 = function(){
+            // Sélectionne tous les champs input de type number
+            var inputs = document.querySelectorAll('input[type="number"]');
+            
+            inputs.forEach(function(input) {
+                // Vérifie que l'input n'est pas désactivé (champ ouvert à l'édition)
+                if (!input.disabled) {
+                    // Génère un nombre aléatoire entre 0 et 5
+                    var randomValue = Math.floor(Math.random() * 6);
+                    input.value = randomValue;
+                    
+                    // Déclenche l'événement input pour que Angular détecte la modification
+                    var event = new Event('input', { bubbles: true });
+                    input.dispatchEvent(event);
+                }
+            });
+            
+            console.log('Ask Michel - Random values generated for all bet fields');
+        }
 }]);
