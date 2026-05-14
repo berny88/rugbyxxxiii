@@ -224,7 +224,7 @@ class GamesManager(DbManager):
         result = list()
         for row in rows:
             result.append(row)                    
-            logger.info("game={}".format(row))
+            logger.info("getAllGames::game={}".format(row))
         return result
 
 

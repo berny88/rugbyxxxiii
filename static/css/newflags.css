@@ -218,7 +218,6 @@
 .newflags.AGO { background-position: -80px -0px;  }
 .newflags.ALB { background-position: -106px -0px;  }
 .newflags.ALG { background-position: -132px -0px;  }
-.newflags.ALL { background-position: -158px -0px;  }
 .newflags.AND { background-position: -184px -0px;  }
 .newflags.ENG { background-position: -210px -0px;  }
 .newflags.ANT { background-position: -236px -0px;  }
@@ -263,6 +262,8 @@
 .newflags.CRO { background-position: -106px -48px;  }
 .newflags.CUB { background-position: -132px -48px;  }
 .newflags.DAN { background-position: -158px -48px;  }
+/* Germany - Deutschland - DEU */
+.newflags.DEU { background-position: -158px -0px;  }
 .newflags.DJI { background-position: -184px -48px;  }
 .newflags.DOM { background-position: -210px -48px;  }
 .newflags.EAU { background-position: -236px -48px;  }
@@ -291,7 +292,8 @@
 .newflags.GUY { background-position: -106px -80px;  }
 .newflags.HAI { background-position: -132px -80px;  }
 .newflags.HND { background-position: -158px -80px;  }
-.newflags.HOL { background-position: -184px -80px;  }
+/* Netherlands - Nederland - NLD */
+.newflags.NLD { background-position: -184px -80px;  }
 .newflags.HON { background-position: -210px -80px;  }
 .newflags.ILN { background-position: -182px -224px;  }
 .newflags.IND { background-position: -262px -80px;  }
@@ -303,8 +305,9 @@
 .newflags.ISR { background-position: -54px -96px;  }
 .newflags.ITA { background-position: -80px -96px;  }
 .newflags.JAM { background-position: -106px -96px;  }
-.newflags.JAP { background-position: -132px -96px;  }
 .newflags.JOR { background-position: -158px -96px;  }
+/* Japan - Nippon - JPN */
+.newflags.JPN { background-position: -132px -96px;  }
 .newflags.KAZ { background-position: -184px -96px;  }
 .newflags.KEN { background-position: -210px -96px;  }
 .newflags.KIB { background-position: -236px -96px;  }

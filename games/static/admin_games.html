@@ -44,7 +44,7 @@
                         <button type="button" class="btn btn-success glyphicon glyphicon-save"
                                 ng-click="createHistoryRankings()"> Enregistrer l'historique des classements
                         </button>
-                        <span style="visibility: hidden" id="spin_histo">   <img src="static/img/spin.gif"></span>
+                        <span style="visibility: hidden" id="spin_histo">   <img src="img/spin.gif"></span>
                         <div class="alert alert-info" role="alert"><span class="glyphicon glyphicon-info-sign"></span> Rappel : enregistrement automatique par batch chaque nuit à 00:00.</div>
                     </div>
                 </div>
@@ -76,14 +76,14 @@
                                 <thead>
                                     <tr>
                                         <th class="dateMatch">
-                                            <a ng-click="sortType='dateMatch';sortReverse=!sortReverse">Date
-                                                <span ng-show="sortType=='dateMatch'&&!sortReverse" class="glyphicon glyphicon-chevron-down"></span>
-                                                <span ng-show="sortType=='dateMatch' && sortReverse" class="glyphicon glyphicon-chevron-up"></span></a>
+                                            <a ng-click="sortType='dateMatch';sortReverse=!sortReverse">Date (UTC)
+                                                <span ng-show="sortType=='date'&&!sortReverse" class="glyphicon glyphicon-chevron-down"></span>
+                                                <span ng-show="sortType=='date' && sortReverse" class="glyphicon glyphicon-chevron-up"></span></a>
                                         </th>
-                                        <th class="categoryName">
-                                            <a ng-click="sortType='categoryName';sortReverse=!sortReverse">Groupe
-                                                <span ng-show="sortType=='categoryName'&&!sortReverse" class="glyphicon glyphicon-chevron-down"></span>
-                                                <span ng-show="sortType=='categoryName' && sortReverse" class="glyphicon glyphicon-chevron-up"></span></a>
+                                        <th class="category">
+                                            <a ng-click="sortType='category';sortReverse=!sortReverse">Groupe
+                                                <span ng-show="sortType=='category'&&!sortReverse" class="glyphicon glyphicon-chevron-down"></span>
+                                                <span ng-show="sortType=='category' && sortReverse" class="glyphicon glyphicon-chevron-up"></span></a>
                                         </th>
                                         <th class="teamA">
                                             <a ng-click="sortType='teamA';sortReverse=!sortReverse">Team A
@@ -103,8 +103,8 @@
                                 </thead>
                                 <tbody ng-init="getGames();">
                                     <tr ng-class="{ 'danger' : (game.resultA==null || game.resultB==null)}" ng-repeat="game in games | filter : game_filter | orderBy:sortType:sortReverse">
-                                        <td data-title="Date">{{game.dateMatch | date:'dd/MM/yy HH:mm'}}</td>
-                                        <td data-title="Groupe">{{game.categoryName}}</td>
+                                        <td data-title="Date">{{game.date | date:'dd/MM/yy HH:mm'}}</td>
+                                        <td data-title="Groupe">{{game.category}}</td>
                                         <td data-title="TeamA"><span class="newflags {{game.teamA}}"></span> {{game.libteamA}}</td>
                                         <td data-title="resultA">
                                             <input class="form-control" ng-model="game.resultA"
