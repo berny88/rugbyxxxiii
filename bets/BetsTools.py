@@ -148,7 +148,7 @@ class BetsManager(DbManager):
             bet.teamB = row["teamB"]
             bet.nbPoints = row["nbPoints"]
 
-            logger.info("getBetsOfUserAndCom::bet={}".format(row))
+            logger.info("getBetsOfUserAndCom::bet={}".format(bet))
             tmpdict = bet.__dict__
             result.append(tmpdict)
 

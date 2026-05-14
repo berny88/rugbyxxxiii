@@ -173,16 +173,31 @@ betApp.controller('BetsCtrl', ['$scope', '$routeParams', '$http', '$q', '$locati
         }
 
         /**
+         * Vérifie si un élément est visible à l'écran
+         * Retourne true si l'élément n'est pas caché par ng-show ou display:none
+         */
+        var isElementVisible = function(element) {
+            // offsetParent est null si l'élément ou un de ses parents est caché (display: none)
+            if (element.offsetParent === null) {
+                return false;
+            }
+            // Vérification supplémentaire du style display
+            var style = window.getComputedStyle(element);
+            return style.display !== 'none' && style.visibility !== 'hidden';
+        };
+
+        /**
          * Génère des valeurs aléatoires pour tous les champs de paris
          * Remplit les champs resultA et resultB avec des nombres entre 0 et 5
+         * Ignore les champs masqués (ng-show ou display: none)
          */
         $scope.ask_ai1 = function(){
             // Sélectionne tous les champs input de type number
             var inputs = document.querySelectorAll('input[type="number"]');
-            
             inputs.forEach(function(input) {
-                // Vérifie que l'input n'est pas désactivé (champ ouvert à l'édition)
-                if (!input.disabled) {
+                // Vérifie que l'input n'est pas désactivé et qu'il est visible
+                console.log('Ask AI - Processing input:', input.name, 'disabled:', input.disabled, 'visible:', isElementVisible(input));
+                if (!input.disabled && isElementVisible(input)) {
                     // Génère un nombre aléatoire entre 0 et 5
                     var randomValue = Math.floor(Math.random() * 6);
                     input.value = randomValue;
@@ -193,6 +208,6 @@ betApp.controller('BetsCtrl', ['$scope', '$routeParams', '$http', '$q', '$locati
                 }
             });
             
-            console.log('Ask Michel - Random values generated for all bet fields');
+            console.log('Ask AI - Random values generated for all visible bet fields');
         }
 }]);

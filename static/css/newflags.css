@@ -238,7 +238,7 @@
 .newflags.BOL { background-position: -236px -16px;  }
 .newflags.BOS { background-position: -262px -16px;  }
 .newflags.BOT { background-position: -288px -16px;  }
-.newflags.BRE { background-position: -314px -16px;  }
+.newflags.BRA { background-position: -314px -16px;  }
 .newflags.BRN { background-position: -340px -16px;  }
 .newflags.BRU { background-position: -2px -32px;  }
 .newflags.BUF { background-position: -28px -32px;  }
@@ -248,8 +248,10 @@
 .newflags.CAM { background-position: -132px -32px;  }
 .newflags.CAN { background-position: -158px -32px;  }
 .newflags.CDN { background-position: -184px -32px;  }
-.newflags.CDS { background-position: -210px -32px;  }
+.newflags.KOR { background-position: -210px -32px;  }
 .newflags.CEI { background-position: -236px -32px;  }
+/* switzerland - Confederation Helvetica - CHE */
+.newflags.CHE { background-position: -106px -192px;  }
 .newflags.CHL { background-position: -262px -32px;  }
 .newflags.CHN { background-position: -288px -32px;  }
 .newflags.CHY { background-position: -314px -32px;  }
@@ -390,7 +392,6 @@
 .newflags.SRI { background-position: -28px -192px;  }
 .newflags.STP { background-position: -54px -192px;  }
 .newflags.SWE { background-position: -80px -192px;  }
-.newflags.SWI { background-position: -106px -192px;  }
 .newflags.SUR { background-position: -132px -192px;  }
 .newflags.SVG { background-position: -158px -192px;  }
 .newflags.SWA { background-position: -184px -192px;  }

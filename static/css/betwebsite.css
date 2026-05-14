@@ -280,7 +280,7 @@ ul.post-grid li:hover h3 {
 /* Go to top */
 .scroll-to-top {
     position: fixed;
-    background:url('/static/img/scroll-to-top.png') no-repeat;
+    background:url('/img/scroll-to-top.png') no-repeat;
     cursor: pointer;
     width:55px;
     height: 55px;
