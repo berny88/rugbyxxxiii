@@ -162,7 +162,7 @@ class BetsManager(DbManager):
         result = list()
         # get all bets+games+user attrb
         sql_bets_by_user="""
-            SELECT category, key, date, libteamA, teamA, libteamB, teamB,
+            SELECT category, categoryName, key, date, libteamA, teamA, libteamB, teamB,
             u.uuid, b.resultA, b.resultB, nbPoints, b.uuid as bet_uuid
             FROM GAME g, BETUSER u, BET b
             where  b.FK_GAME=g.key
@@ -368,7 +368,7 @@ class BetsManager(DbManager):
                             from BETUSER u, BET b, GAME g
                             where u.uuid=b.FK_USER
                             and b.FK_GAME = g.key
-                            and g.category like 'Pool%'
+                            and g.category like 'Group%'
                             group by nickName
                             order by 3 desc;"""
         elif phase=='Q':
@@ -376,7 +376,7 @@ class BetsManager(DbManager):
                             from BETUSER u, BET b, GAME g
                             where u.uuid=b.FK_USER
                             and b.FK_GAME = g.key
-                            and g.category not like 'Pool%'
+                            and g.category not like 'Group%'
                             group by nickName
                             order by 3 desc;"""
         else:
