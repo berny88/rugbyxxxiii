@@ -423,6 +423,20 @@
 .newflags.ZAM { background-position: -54px -224px;  }
 .newflags.ZIM { background-position: -80px -224px;  }
 .newflags.SCO { background-position: -130px -224px;  }
+/* Bosnia and Herzegovina - Bosna i Hercegovina - BIH */
+.newflags.BIH { background-position: -210px -224px;  }
+/* Curacao - Curaçao - CUW */
+.newflags.CUW { background-position: -236px -224px;  }
+/* Ecuador - Ecuador - ECU */
+.newflags.ECU { background-position: -262px -224px;  }
+/* Saudi Arabia - Al-Sa'udiyya - SAU */
+.newflags.SAU { background-position: -288px -224px;  }
+/* congo DRC - Congo-Kinshasa - COD */
+.newflags.COD { background-position: -314px -224px;  }
+/* uzbekistan - O'zbekiston - UZB */
+.newflags.UZB { background-position: -340px -224px;  }
+
+
 
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5), 
 only screen and (min--moz-device-pixel-ratio: 1.5), 

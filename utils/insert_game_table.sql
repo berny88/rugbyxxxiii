@@ -67,10 +67,10 @@ INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB,
 
 -- Groupe H
 INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-ESP-CPV', '2026-06-15T16:00:00', 'ESP', 'CPV', 'Spain', 'Cabo Verde', NULL, NULL, 'group', 'Group H');
-INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-KSA-URU', '2026-06-15T22:00:00', 'KSA', 'URU', 'Saudi Arabia', 'Uruguay', NULL, NULL, 'group', 'Group H');
-INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-ESP-KSA', '2026-06-21T16:00:00', 'ESP', 'KSA', 'Spain', 'Saudi Arabia', NULL, NULL, 'group', 'Group H');
+INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-SAU-URU', '2026-06-15T22:00:00', 'SAU', 'URU', 'Saudi Arabia', 'Uruguay', NULL, NULL, 'group', 'Group H');
+INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-ESP-KSA', '2026-06-21T16:00:00', 'ESP', 'SAU', 'Spain', 'Saudi Arabia', NULL, NULL, 'group', 'Group H');
 INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-URU-CPV', '2026-06-21T22:00:00', 'URU', 'CPV', 'Uruguay', 'Cabo Verde', NULL, NULL, 'group', 'Group H');
-INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-CPV-KSA', '2026-06-27T00:00:00', 'CPV', 'KSA', 'Cabo Verde', 'Saudi Arabia', NULL, NULL, 'group', 'Group H');
+INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-CPV-KSA', '2026-06-27T00:00:00', 'CPV', 'SAU', 'Cabo Verde', 'Saudi Arabia', NULL, NULL, 'group', 'Group H');
 INSERT INTO GAME (key, date, teamA, teamB, libteamA, libteamB, resultA, resultB, category, categoryName) VALUES ('Group H-URU-ESP', '2026-06-27T00:00:00', 'URU', 'ESP', 'Uruguay', 'Spain', NULL, NULL, 'group', 'Group H');
 
 -- Groupe I

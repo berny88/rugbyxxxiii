@@ -214,7 +214,7 @@ class GamesManager(DbManager):
 
         """uuid, nickName, desc, avatar, email, isAdmin"""
 
-        sql_all_games="""SELECT category, key, date, libteamA, teamA, libteamB, teamB,
+        sql_all_games="""SELECT category, categoryName, key, date, libteamA, teamA, libteamB, teamB,
             resultA, resultB
                         FROM GAME order by date, key;"""
         cur = localdb.cursor()

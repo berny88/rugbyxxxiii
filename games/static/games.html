@@ -49,7 +49,7 @@
                     </thead>
                     <tbody ng-init="getGames();">
                         <tr ng-class="{ 'danger' : (game.resultA==null || game.resultB==null)}" ng-repeat="game in games | filter : game_filter | orderBy:sortType:sortReverse">
-                            <td data-title="Date">{{ game.dateGame | date:'dd/MM/yy HH:mm'}}</td>
+                            <td data-title="Date">{{ game.date | date:'dd/MM/yy HH:mm'}}</td>
                             <td data-title="Group">{{game.categoryName}}</td>
                             <td data-title="TeamA"><span class="newflags {{game.teamA}}"></span> {{game.libteamA}}</td>
                             <td data-title="resultA"><input style="width:50px;text-align:center;" value="{{game.resultA}}" disabled></td>

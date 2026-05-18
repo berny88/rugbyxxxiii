@@ -98,7 +98,7 @@ class BetsManager(DbManager):
         result = list()
         # get all bets+games+user attrb
         sql_bets_by_user="""
-            SELECT category, key, date, libteamA, teamA, libteamB, teamB,
+            SELECT categoryName, category, key, date, libteamA, teamA, libteamB, teamB,
             u.uuid, b.resultA, b.resultB, nbPoints, b.uuid as bet_uuid
             FROM GAME g, BETUSER u, BET b
             where  b.FK_GAME=g.key
@@ -132,7 +132,7 @@ class BetsManager(DbManager):
             bet.game_id=row["key"]
             bet.dateMatch=row["date"]
             bet.category=row["category"]
-            #2021/06/11 21:00:00
+            bet.categoryName=row["categoryName"]
             bet.dateGameInDate=datetime.strptime(row["date"], self.DATE_FORMAT)
             currDate = datetime.now()
             dateToCompare = bet.dateGameInDate - timedelta(hours=2)
@@ -190,7 +190,8 @@ class BetsManager(DbManager):
             bet.teamA = row["teamA"]
             bet.teamB = row["teamB"]
             bet.nbPoints = row["nbPoints"]
-
+            bet.categoryName = row["categoryName"]
+            bet.category = row["category"]
             logger.info("getBetsOfGame::bet={}".format(row))
             result.append(bet)
 
